@@ -1,8 +1,11 @@
 import json
 import os
 
-from scheduler_agent.evaluation import run_suite
+from scheduler_agent.agent import run_agent
+from scheduler_agent.evaluation import build_context, run_suite
 from scheduler_agent.llm import LLMError, OpenAICompatModel, load_dotenv, make_model
+from scheduler_agent.mock_model import MockModel
+from scheduler_agent.store import DraftStore
 
 
 def test_all_scenarios_pass_with_offline_mock(tmp_path):
@@ -12,6 +15,17 @@ def test_all_scenarios_pass_with_offline_mock(tmp_path):
     assert not failed, failed
     assert len(summary) == 11
     assert (tmp_path / "02_conflict" / "trace.md").exists()
+
+
+def test_mock_resubmission_under_new_request_id_keeps_one_draft(tmp_path):
+    store = tmp_path / "drafts.json"
+    base = {"items": [{"material_id": "M07", "channel": "douyin", "publish_at": "2026-11-04T19:00"}]}
+    first = run_agent(build_context({**base, "request_id": "REQ-A"}, store), MockModel()).report
+    second = run_agent(build_context({**base, "request_id": "REQ-B"}, store), MockModel()).report
+    assert first["draft"]["status"] == "created"
+    assert second["items"][0]["draft_status"] == "in_other_draft"
+    assert second["draft"]["status"] == "not_attempted"
+    assert len(DraftStore(store).list_drafts()) == 1
 
 
 def test_openai_compat_parses_tool_calls(monkeypatch):

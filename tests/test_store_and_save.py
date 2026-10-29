@@ -3,7 +3,7 @@ import json
 from conftest import REQ_CONFLICT
 
 from scheduler_agent.store import DraftStore, request_key
-from scheduler_agent.tools import check_rules, dispatch, query_slots, save_schedule_draft
+from scheduler_agent.tools import check_rules, dispatch, get_material, query_slots, save_schedule_draft
 
 
 def _item(slot="2026-11-03T19:00", cs="pending", note="18:00 被占用，建议 19:00，待确认", **kw):
@@ -135,6 +135,35 @@ def test_drafts_of_other_requests_hold_slots(make_ctx):
     assert res["requested"]["status"] == "held_by_draft"
     same = make_ctx(REQ_CONFLICT)  # 同一请求再次提交时不被自己的草稿挡住
     assert query_slots(same, "douyin", "2026-11-03T19:00")["requested"]["status"] == "free"
+
+
+def test_same_material_cannot_enter_a_second_draft(make_ctx):
+    # 评审发现：换一个 request_id 重提同一素材，曾生成第二份草稿，还被第一份草稿挤到 20:00
+    m07 = {"material_id": "M07", "channel": "douyin", "publish_at": "2026-11-04T19:00"}
+    first = make_ctx({"request_id": "REQ-A", "items": [m07]})
+    check_rules(first, "M07", "2026-11-04T19:00")
+    saved = {"material_id": "M07", "channel": "douyin", "slot": "2026-11-04T19:00", "confirmation_status": "not_required"}
+    assert save_schedule_draft(first, [saved])["status"] == "created"
+    draft_id = first.store.list_drafts()[0]["draft_id"]
+
+    again = make_ctx({"request_id": "REQ-B", "items": [m07]})
+    assert get_material(again, "M07")["existing_draft"]["draft_id"] == draft_id  # 模型第一步就能看到
+    check_rules(again, "M07", "2026-11-04T20:00")
+    res = save_schedule_draft(again, [{**saved, "slot": "2026-11-04T20:00", "confirmation_status": "pending",
+                                       "note": "19:00 被占，建议 20:00"}])
+    assert not res["ok"] and any(draft_id in i for i in res["error"]["issues"])
+
+    # 不带 request_id、只多给一个窗口，也是另一个请求键，同样不能再建一份
+    windowed = make_ctx({"items": [{**m07, "acceptable_window": {"start": "2026-11-04T19:00",
+                                                                 "end": "2026-11-04T22:00"}}]})
+    check_rules(windowed, "M07", "2026-11-04T21:00")
+    assert not save_schedule_draft(windowed, [{**saved, "slot": "2026-11-04T21:00"}])["ok"]
+    assert len(first.store.list_drafts()) == 1
+
+    # 原请求仍可修改自己的草稿
+    moved = save_schedule_draft(first, [{**saved, "slot": "2026-11-04T21:00", "confirmation_status": "pending",
+                                         "note": "改到 21:00，待确认"}])
+    assert moved["status"] == "updated" and moved["draft_id"] == draft_id
 
 
 def test_dispatch_handles_bad_arguments(make_ctx):

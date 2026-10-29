@@ -69,14 +69,17 @@ class DraftStore:
         return self._load()["drafts"].get(draft_id_for(key))
 
     def holds(self, exclude_key: Optional[str] = None) -> List[dict]:
-        """其他请求的草稿已占用的时段（草稿占位，未发布）。"""
+        """其他请求的草稿已排入的素材及其占用的时段（草稿占位，未发布）。"""
         out = []
         for draft in self._load()["drafts"].values():
             if draft["request_key"] == exclude_key:
                 continue
             for item in draft["items"]:
                 out.append({"channel": item["channel"], "slot": item["slot"], "draft_id": draft["draft_id"],
-                            "material_id": item["material_id"]})
+                            "material_id": item["material_id"], "request_key": draft["request_key"],
+                            "confirmation_status": item.get("confirmation_status"),
+                            "requested_channel": item.get("requested_channel"),
+                            "requested_slot": item.get("requested_slot")})
         return out
 
     def upsert(self, key: str, items: List[dict]) -> dict:

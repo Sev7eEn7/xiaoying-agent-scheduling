@@ -20,18 +20,21 @@ python -m scheduler_agent suite --provider deepseek --repeat 3 --out examples/ru
 
 每个场景的期望写在 [examples/scenarios.json](../examples/scenarios.json)，由 [evaluation.py](../src/scheduler_agent/evaluation.py) 自动检查。所有场景都额外检查两项：输出中没有“已发布/已上线/发布成功”，以及没有超过步数上限。结果写入每个场景目录的 `checks.json`。
 
-## 2. 单元测试（38 个，全部通过）
+## 2. 单元测试（47 个，全部通过）
 
 | 文件 | 覆盖内容 |
 |---|---|
 | [test_rules_and_slots.py](../tests/test_rules_and_slots.py) | R01–R07 各规则；“第一次”不会被误判为极限词；登记库补查后通过；授权到期依赖发布日；占用、夜间禁发、非整点、未知渠道、草稿占位、同批次占用；替代时段排序（同距离优先晚于原时间） |
-| [test_store_and_save.py](../tests/test_store_and_save.py) | 幂等 `created → duplicate → updated`；请求键不受 confirmations 影响；**只改 note 措辞仍判为 duplicate**；未审核不能保存；擅自改期必须 pending；伪造 confirmed 被拒；用户窗口内改动无需确认；同批次冲突；block 不入稿、review 必须 pending；跨日期改动需复检；存储故障不写盘；首次故障后恢复；其他请求的草稿占位 |
-| [test_guard_and_loop.py](../tests/test_guard_and_loop.py) | finish 虚报保存被拒；“已发布”被拒；审核结论或时段与账本不一致被拒；保存失败时任务状态为 `save_failed`；同一轮里 finish 排在其他工具之后处理；退回后修正可以通过；反复退回则 `incomplete`；轮次上限、工具调用上限；非法 JSON 与纯文本回复会回传给模型；模型接口报错；**task_status 只看结构化字段** |
-| [test_scenarios_and_llm.py](../tests/test_scenarios_and_llm.py) | 11 个场景的 Mock 全量回放；OpenAI 兼容响应解析；缺少密钥时的提示；`.env` 不覆盖已有环境变量 |
+| [test_store_and_save.py](../tests/test_store_and_save.py) | 幂等 `created → duplicate → updated`；请求键不受 confirmations 影响；**只改 note 措辞仍判为 duplicate**；未审核不能保存；擅自改期必须 pending；伪造 confirmed 被拒；用户窗口内改动无需确认；同批次冲突；block 不入稿、review 必须 pending；跨日期改动需复检；存储故障不写盘；首次故障后恢复；其他请求的草稿占位；**同一素材换请求 ID（或不带 ID 只多给窗口）重提不能建第二份草稿，原请求仍可修改**（第 8 节） |
+| [test_guard_and_loop.py](../tests/test_guard_and_loop.py) | finish 虚报保存被拒；“已发布”被拒；审核结论或时段与账本不一致被拒；保存失败时任务状态为 `save_failed`；同一轮里 finish 排在其他工具之后处理；退回后修正可以通过；反复退回则 `incomplete`；轮次上限、工具调用上限；非法 JSON 与纯文本回复会回传给模型；模型接口报错；**task_status 只看结构化字段**；**可排期素材未进草稿、只有阻断素材时都不报 completed；跨请求重复时报告指向已有草稿**（第 8 节） |
+| [test_scenarios_and_llm.py](../tests/test_scenarios_and_llm.py) | 11 个场景的 Mock 全量回放；Mock 下换请求 ID 重提仍只有 1 份草稿；OpenAI 兼容响应解析；缺少密钥时的提示；`.env` 不覆盖已有环境变量 |
+| [test_recorded_runs.py](../tests/test_recorded_runs.py) | 用当前代码重放已提交的 4 套 deepseek-flash 记录（44 次运行，不调接口）：模型看到的对话与 `messages.json` 逐字一致，报告与 `report.json` 一致 |
 
 ## 3. 真实模型结果（DeepSeek Flash：`deepseek-flash` / DeepSeek-V4.1-Flash，temperature=0）
 
 提交结果只使用 Flash 模型。完整回放：**11/11 个场景、103/103 项检查通过**，见 [examples/runs/deepseek-flash/summary.md](../examples/runs/deepseek-flash/summary.md)。11 个场景共消耗约 18.6 万输入 token（其中 92% 命中缓存）和 1.6 万输出 token。
+
+> 本节和第 5 节的真实模型记录是在第 8 节的修复之前跑的。修复后用 [test_recorded_runs.py](../tests/test_recorded_runs.py) 把这 44 次运行的模型决策重放了一遍：模型看到的系统提示、工具描述和每一条工具结果都和记录逐字相同，报告也没有变化，所以这些记录对当前代码仍然有效。
 
 | 验收点 | 场景 | 预期 | 实际（证据） |
 |---|---|---|---|
@@ -106,3 +109,25 @@ python -m scheduler_agent suite --provider deepseek --repeat 3 --out examples/ru
 - **存储无并发控制**：JSON 文件 + 原子替换，多进程同时写会互相覆盖。
 - **提示词注入未专项测试**：素材文案会原样进入模型上下文。工具层的二次校验可以兜住越权保存，但没有验证模型是否会被文案带偏。
 - **期望含业务偏好**：09 要求“保留无窗口素材的原时段”，这是对“少打扰用户”的偏好，不是唯一正确答案；改成其他分配但正确标记 pending 的结果，会被判为不通过。
+- **同一素材只能有一份草稿**：跨渠道分发（同一素材分别排到抖音和小红书）目前不支持，第二个渠道会被当成重复；要改已有排期，只能用原请求 ID 重新提交。
+- **跨请求重复的路径没有真实模型证据**：第 8 节的修复只有单测和 Mock 验证；真实模型遇到 `existing_draft` 时会怎么写结论，还没有跑过。
+
+## 8. 评审后修复（2026-10-29）
+
+对照题目做自查时发现两个问题，都是工具账本层面的漏洞，原来的 11 个场景没有覆盖到。
+
+| 问题 | 复现 | 原因 | 修复 |
+|---|---|---|---|
+| 换一个 `request_id` 重提同一素材，会生成第二份草稿 | M07 先用 REQ-A 入稿（抖音 11-04 19:00），再用 REQ-B 提交同样的要求：存储里出现 2 份含 M07 的草稿，而且 REQ-B 被 REQ-A 的占位挤到了 20:00。不带 `request_id`、只多给一个 `acceptable_window`，请求键也会变 | 判重只看请求键，不看素材 | **同一素材只能出现在一份草稿里**：`get_material` 返回 `existing_draft`（草稿号、原请求、时段、确认状态），让模型一开始就能看到；`save_schedule_draft` 遇到已在其他请求草稿中的素材直接拒绝，并提示用原请求 ID 修改；报告里该素材的草稿状态为 `in_other_draft`，附上已有草稿的信息 |
+| 素材没有进草稿，任务仍可能报 `completed` | 审核通过的 M02 不保存，`finish` 里建议时段填 null、待确认项留空：校验通过，`task_status=completed`。只有一条阻断素材（M04）的请求也报 `completed` | finish 校验只在“给了建议时段”时才要求说明；`task_status` 只看有没有 pending / needs_info，没看素材是否真的进了草稿 | finish 校验：可排期（pass / review）的素材没进草稿，必须在 `pending_items` 写明原因。`task_status` 改为完全由账本计算：只有**每条素材**都进了草稿且无需确认（或已在其他请求的草稿里、要求相同且无需确认）才是 `completed`，否则是 `needs_confirmation` |
+
+代码改动在 [tools.py](../src/scheduler_agent/tools.py)（`drafted_elsewhere`、`get_material`、`_validate_save_items`）、[guard.py](../src/scheduler_agent/guard.py)（`validate_finish`、`build_report`）和 [store.py](../src/scheduler_agent/store.py)（`holds` 多返回原请求和确认状态）。离线 Mock 也加了对 `existing_draft` 的处理。系统提示词和工具描述没有改。
+
+验证：
+
+1. 新增 5 个回归测试，用修复前的代码（commit 2f52b0a）运行时 **5 个全部失败**，原有 38 个照常通过；修复后 47 个测试全部通过。
+2. `suite --provider mock`：11/11 场景全部检查通过。
+3. 重放已提交的真实模型记录（见第 3 节说明）：44/44 次运行的对话和报告与记录一致，说明修复没有改变原有 11 个场景的行为。
+4. 手动复核：在同一个 `--store` 里先跑 `01_normal.json`，再跑 `11_tool_retry.json`（M07 换了请求和日期），第二次报告 M07 为 `in_other_draft`，指向 REQ-01 的草稿，并列出“与本次要求不同，如需改期请用原请求重新提交”；存储里仍只有 1 份草稿。
+
+没有做的：没有用真实模型重跑，也没有把跨请求重复加进 `scenarios.json`（加进去后，真实模型的汇总就缺这一项，口径会不一致）。

@@ -28,6 +28,10 @@ def _print_report(report: dict) -> None:
         sug = f"{it.get('suggested_channel') or ''} {it.get('suggested_slot') or ''}".strip() or "—"
         print(f"  {it['material_id']}: 审核={it['review_status']}  要求={req.get('channel')} {req.get('publish_at')}  "
               f"建议={sug}  确认={it['confirmation_status']}  草稿={it['draft_status']}")
+        if it.get("existing_draft"):
+            e = it["existing_draft"]
+            print(f"      已在草稿: {e['draft_id']}（请求 {e['request_key']}，{e['channel']} {e['slot']}，"
+                  f"{e['confirmation_status']}）")
         for r in it["risk_reasons"]:
             print(f"      风险: {r}")
         for p in it["pending_items"]:

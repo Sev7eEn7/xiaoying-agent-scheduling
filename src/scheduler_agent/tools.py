@@ -78,6 +78,10 @@ class ToolContext:
     def slot_book(self) -> SlotBook:
         return SlotBook(self.schedule, self.rules, self.store.holds(exclude_key=self.key))
 
+    def drafted_elsewhere(self) -> Dict[str, dict]:
+        """其他请求的草稿里已排入的素材：同一素材只能出现在一份草稿中。"""
+        return {h["material_id"]: h for h in self.store.holds(exclude_key=self.key)}
+
 
 def _error(code: str, message: str, retryable: bool = False, **extra) -> dict:
     err = {"code": code, "message": message, "retryable": retryable}
@@ -95,7 +99,14 @@ def get_material(ctx: ToolContext, material_id: str) -> dict:
     ctx.ledger.materials[material_id] = material is not None
     if material is None:
         return {"ok": True, "found": False, "material_id": material_id}
-    return {"ok": True, "found": True, "material": material}
+    out = {"ok": True, "found": True, "material": material}
+    existing = ctx.drafted_elsewhere().get(material_id)
+    if existing:
+        out["existing_draft"] = existing
+        out["note"] = (f"该素材已在请求 {existing['request_key']} 的草稿 {existing['draft_id']} 中"
+                       f"（{existing['channel']} {existing['slot']}，{existing['confirmation_status']}）。"
+                       "同一素材只能有一份草稿，本次不能再保存；如需改期，请用原请求 ID 重新提交。")
+    return out
 
 
 def check_rules(ctx: ToolContext, material_id: str, publish_at: Optional[str] = None) -> dict:
@@ -155,6 +166,7 @@ def _within_window(window: Optional[dict], slot: str) -> bool:
 def _validate_save_items(ctx: ToolContext, items: list) -> tuple:
     requested = request_items(ctx.request)
     book = ctx.slot_book()
+    elsewhere = ctx.drafted_elsewhere()
     issues: List[str] = []
     stored: List[dict] = []
     seen_ids = set()
@@ -169,6 +181,11 @@ def _validate_save_items(ctx: ToolContext, items: list) -> tuple:
             issues.append(prefix + "在草稿中重复出现")
             continue
         seen_ids.add(mid)
+        if mid in elsewhere:
+            e = elsewhere[mid]
+            issues.append(prefix + f"已在请求 {e['request_key']} 的草稿 {e['draft_id']} 中（{e['channel']} {e['slot']}），"
+                                   "同一素材只能有一份草稿；如需改期，请用原请求 ID 重新提交")
+            continue
         req = requested[mid]
         channel, slot = item.get("channel"), item.get("slot")
         cs = item.get("confirmation_status")
@@ -368,7 +385,11 @@ def summarize(name: str, args: dict, result: dict) -> str:
         if not result["found"]:
             return f"素材库中不存在 {result['material_id']}"
         m = result["material"]
-        return f"找到 {m['id']}《{m['title']}》，license={'有' if m.get('license') else '缺失'}"
+        text = f"找到 {m['id']}《{m['title']}》，license={'有' if m.get('license') else '缺失'}"
+        if result.get("existing_draft"):
+            e = result["existing_draft"]
+            text += f"；已在请求 {e['request_key']} 的草稿 {e['draft_id']} 中（{e['channel']} {e['slot']}）"
+        return text
     if name == "check_rules":
         parts = [f"{f['rule_id']}[{f['severity']}] {f['message']}" + (f"（{f['evidence']}）" if f.get("evidence") else "")
                  for f in result["findings"] if f["severity"] != "info"]

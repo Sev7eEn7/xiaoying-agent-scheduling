@@ -10,7 +10,7 @@ import json
 import re
 from typing import List, Optional
 
-from .domain import request_items
+from .domain import request_items, same_requirement
 from .tools import ToolContext
 
 FORBIDDEN_CLAIMS = re.compile(r"已发布|已经发布|已正式发布|发布成功|已上线|已推送上线")
@@ -45,6 +45,7 @@ def validate_finish(ctx: ToolContext, args: dict) -> List[str]:
 
     saved = _saved_items(ctx)
     failed = _storage_failed_ids(ctx)
+    elsewhere = ctx.drafted_elsewhere()
     for item in items:
         mid = item.get("material_id")
         if mid not in requested:
@@ -64,7 +65,9 @@ def validate_finish(ctx: ToolContext, args: dict) -> List[str]:
 
         in_draft = bool(item.get("in_draft"))
         if in_draft and mid not in saved:
-            issues.append(p + "in_draft=true，但没有包含该素材的成功保存记录")
+            where = (f"；它在请求 {elsewhere[mid]['request_key']} 的草稿 {elsewhere[mid]['draft_id']} 中，不在本次草稿里"
+                     if mid in elsewhere else "")
+            issues.append(p + "in_draft=true，但没有包含该素材的成功保存记录" + where)
         if not in_draft and mid in saved:
             issues.append(p + "该素材在成功保存的草稿中，in_draft 应为 true")
         if mid in saved:
@@ -83,9 +86,15 @@ def validate_finish(ctx: ToolContext, args: dict) -> List[str]:
             issues.append(p + f"{rs} 必须给出 risk_reasons")
         if rs == "needs_info" and not pending:
             issues.append(p + "needs_info 必须在 pending_items 中列出需补充的信息")
-        if (rs in ("pass", "review") and item.get("suggested_slot") and not in_draft
-                and mid not in failed and not pending):
-            issues.append(p + "给出了建议时段却未保存草稿，也没有说明原因")
+        if mid in elsewhere and mid not in saved:
+            e = elsewhere[mid]
+            if item.get("suggested_slot") not in (None, e["slot"]):
+                issues.append(p + f"该素材已在草稿 {e['draft_id']} 中排在 {e['slot']}，suggested_slot 只能为 null 或该时段")
+            if not same_requirement(e, requested[mid]) and not pending:
+                issues.append(p + f"本次要求与草稿 {e['draft_id']} 中的排期不同，须在 pending_items 说明"
+                                  "（如需改期请用原请求 ID 重新提交）")
+        elif rs in ("pass", "review") and not in_draft and mid not in failed and not pending:
+            issues.append(p + "审核可排期但未进入草稿，须在 pending_items 写明原因（如缺发布时间、无可用时段）")
 
     if FORBIDDEN_CLAIMS.search(json.dumps(args, ensure_ascii=False)):
         issues.append("输出中出现“已发布/上线/发布成功”等表述；本系统只保存草稿，不能声称发布")
@@ -112,17 +121,28 @@ def build_report(ctx: ToolContext, finish_args: Optional[dict], stats: dict,
     model_items = {i.get("material_id"): i for i in (finish_args or {}).get("items") or []}
     saved = _saved_items(ctx)
     failed = _storage_failed_ids(ctx)
+    elsewhere = ctx.drafted_elsewhere()
     items = []
+    settled = []
     for req in ctx.request.get("items", []):
         mid = req["material_id"]
         m = model_items.get(mid, {})
         check = ctx.ledger.checks.get(mid)
         if mid in saved:
             draft_status = "saved"
+            done = saved[mid]["confirmation_status"] in ("not_required", "confirmed")
         elif mid in failed:
             draft_status = "save_failed"
+            done = False
+        elif mid in elsewhere:
+            # 同一素材已在其他请求的草稿里：要求相同算重复提交，不同则要用户决定是否改期
+            draft_status = "in_other_draft"
+            done = (same_requirement(elsewhere[mid], req)
+                    and elsewhere[mid]["confirmation_status"] in ("not_required", "confirmed"))
         else:
             draft_status = "not_saved"
+            done = False
+        settled.append(done)
         findings = [f for f in (check or {}).get("findings", []) if f["severity"] != "info"]
         items.append({
             "material_id": mid,
@@ -137,16 +157,19 @@ def build_report(ctx: ToolContext, finish_args: Optional[dict], stats: dict,
             "pending_items": m.get("pending_items") or [],
             "draft_status": draft_status,
         })
+        if draft_status == "in_other_draft":
+            items[-1]["existing_draft"] = elsewhere[mid]
 
     if incomplete_reason:
         task_status = "incomplete"
     elif any(i["draft_status"] == "save_failed" for i in items):
         task_status = "save_failed"
-    elif any(i["confirmation_status"] == "pending" or i["review_status"] == "needs_info" for i in items):
-        # 只看结构化状态；pending_items 是自由文本，模型可能写入说明性内容
-        task_status = "needs_confirmation"
-    else:
+    elif all(settled):
         task_status = "completed"
+    else:
+        # 只看工具账本：有素材未进草稿（阻断、缺资料、未保存）或仍待确认，都不算完成；
+        # pending_items 是自由文本，模型可能写入说明性内容，不参与判断
+        task_status = "needs_confirmation"
 
     report = {
         "request_id": ctx.request.get("request_id"),

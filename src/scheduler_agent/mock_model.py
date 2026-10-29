@@ -10,7 +10,7 @@ import json
 import re
 from typing import List, Optional, Tuple
 
-from .domain import find_confirmation, parse_slot
+from .domain import find_confirmation, parse_slot, same_requirement
 from .llm import ModelTurn, ToolCall
 
 REVIEW_MAP = {"pass": "pass", "review": "review", "block": "blocked", "incomplete": "needs_info"}
@@ -104,6 +104,20 @@ class MockModel:
             if chk["result"] == "incomplete":
                 outcome[mid] = self._needs_info(mid, [f"请补充：{f['message']}" for f in chk["findings"]
                                                       if f["severity"] == "missing"])
+                continue
+            existing = reads[mid].get("existing_draft")
+            if existing:
+                pending = []
+                if not same_requirement(existing, item):
+                    pending.append(f"已在请求 {existing['request_key']} 的草稿 {existing['draft_id']} 中排在 "
+                                   f"{existing['slot']}，与本次要求不同；如需改期请用原请求重新提交")
+                elif existing["confirmation_status"] == "pending":
+                    pending.append(f"已在草稿 {existing['draft_id']} 中，仍待确认（见请求 {existing['request_key']}）")
+                outcome[mid] = {"material_id": mid, "review_status": REVIEW_MAP[chk["result"]],
+                                "risk_reasons": [f["message"] for f in chk["findings"] if f["severity"] == "review"],
+                                "suggested_channel": existing["channel"], "suggested_slot": existing["slot"],
+                                "confirmation_status": existing["confirmation_status"], "pending_items": pending,
+                                "in_draft": False}
                 continue
             if not target or not channel:
                 outcome[mid] = self._needs_info(mid, ["请求缺少发布时间或渠道，请提供"])

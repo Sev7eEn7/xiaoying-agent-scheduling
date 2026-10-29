@@ -53,6 +53,12 @@ def request_items(request: dict) -> Dict[str, dict]:
     return {item["material_id"]: item for item in request.get("items", [])}
 
 
+def same_requirement(placement: dict, item: dict) -> bool:
+    """已有草稿条目是否出自相同的发布要求（渠道 + 时间）。"""
+    return (placement.get("requested_channel"), placement.get("requested_slot")) == \
+        (item.get("channel"), item.get("publish_at"))
+
+
 def find_confirmation(request: dict, material_id: str) -> Optional[dict]:
     for c in request.get("confirmations") or []:
         if c.get("material_id") == material_id:

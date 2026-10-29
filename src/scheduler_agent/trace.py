@@ -61,9 +61,12 @@ def render_markdown(report: dict, trace: List[dict], title: str, input_path: Opt
             w = req["acceptable_window"]
             req_text += f"（可接受 {w['start'][-5:]}–{w['end'][-5:]}）"
         sug = f"{it.get('suggested_channel') or ''} {it.get('suggested_slot') or ''}".strip()
+        draft = it["draft_status"]
+        if it.get("existing_draft"):
+            draft += f"（{it['existing_draft']['draft_id']}）"
         lines.append(f"| {it['material_id']} | {it['review_status']} | {_cell(it['risk_reasons'])} | "
                      f"{_cell(it['rule_findings'])} | {req_text} | {_cell(sug)} | {it['confirmation_status']} | "
-                     f"{_cell(it['pending_items'])} | {it['draft_status']} |")
+                     f"{_cell(it['pending_items'])} | {draft} |")
     if report.get("summary"):
         lines += ["", f"**模型总结**：{report['summary']}"]
     return "\n".join(lines) + "\n"

@@ -4,7 +4,7 @@
 
 - 决策：模型通过函数调用自主选择 `get_material → check_rules → (lookup_license 补查) → query_slots → save_schedule_draft → finish`，根据工具结果决定补查、替代时段、请求确认或阻断。
 - 约束：越权改期、阻断素材入稿、虚报保存成功、声称已发布，这几类问题在**工具层**和 **finish 校验层**都有代码拦截，不依赖提示词。
-- 幂等：同一请求重复提交只会有一份草稿（内容相同返回 `duplicate`，内容变化记为同一草稿的新修订）。
+- 幂等：同一请求重复提交只会有一份草稿（内容相同返回 `duplicate`，内容变化记为同一草稿的新修订）；同一素材也只能出现在一份草稿里，换一个请求 ID 重提会被识别为已在草稿中（`in_other_draft`）。
 - 上限：默认 15 轮模型调用、40 次工具调用。触达上限时返回 `task_status=incomplete` 和原因。
 
 ## 环境
@@ -92,7 +92,7 @@ python -m scheduler_agent drafts --store .runtime/review.json
 ```
 README.md
 src/scheduler_agent/   循环、工具、校验、规则、时段、存储、模型接入、Mock、评估
-tests/                 38 个 pytest 用例（规则、时段、存储、保存校验、finish 校验、循环上限、全场景 Mock 回放）
+tests/                 47 个 pytest 用例（规则、时段、存储、保存校验、finish 校验、循环上限、全场景 Mock 回放、真实模型记录重放）
 examples/inputs/       请求输入
 examples/scenarios.json  场景定义与期望
 examples/runs/deepseek-flash/            真实模型（deepseek-flash）运行：report.json / trace.md / trace.json / messages.json / drafts_after.json / checks.json

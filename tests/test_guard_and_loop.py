@@ -52,6 +52,61 @@ def test_report_marks_save_failure_explicitly(make_ctx):
     assert report["publish_status"] == "not_published"
 
 
+def test_unsaved_schedulable_item_is_not_completed(make_ctx):
+    # 评审发现：可排期素材没保存、也不给建议时段时，finish 曾被接受并报 completed
+    ctx = make_ctx({"request_id": "REQ-U", "items": [
+        {"material_id": "M02", "channel": "xiaohongshu", "publish_at": "2026-11-04T12:00"}]})
+    check_rules(ctx, "M02", "2026-11-04T12:00")
+    silent = {"items": [_finish_item(material_id="M02", suggested_channel=None, suggested_slot=None,
+                                     confirmation_status="not_required", pending_items=[], in_draft=False)],
+              "summary": "处理完毕"}
+    assert any("未进入草稿" in i for i in validate_finish(ctx, silent))
+    # 任务状态只看账本：素材没进草稿，就算模型的 finish 被接受也不是 completed
+    assert build_report(ctx, silent, stats={})["task_status"] == "needs_confirmation"
+
+
+def test_blocked_only_request_is_not_completed(make_ctx):
+    ctx = make_ctx({"request_id": "REQ-K", "items": [
+        {"material_id": "M04", "channel": "douyin", "publish_at": "2026-11-07T20:00"}]})
+    check_rules(ctx, "M04", "2026-11-07T20:00")
+    fin = {"items": [_finish_item(material_id="M04", review_status="blocked", risk_reasons=["包含极限用语"],
+                                  suggested_channel=None, suggested_slot=None, confirmation_status="not_applicable",
+                                  pending_items=[], in_draft=False)], "summary": "M04 阻断"}
+    assert validate_finish(ctx, fin) == []
+    report = build_report(ctx, fin, stats={})
+    assert report["task_status"] == "needs_confirmation" and report["items"][0]["draft_status"] == "not_saved"
+
+
+def test_resubmission_under_new_request_points_to_existing_draft(make_ctx):
+    m07 = {"material_id": "M07", "channel": "douyin", "publish_at": "2026-11-04T19:00"}
+    first = make_ctx({"request_id": "REQ-A", "items": [m07]})
+    check_rules(first, "M07", "2026-11-04T19:00")
+    save_schedule_draft(first, [{"material_id": "M07", "channel": "douyin", "slot": "2026-11-04T19:00",
+                                 "confirmation_status": "not_required"}])
+
+    def fin(**kw):
+        base = {"material_id": "M07", "suggested_slot": "2026-11-04T19:00", "confirmation_status": "not_required",
+                "pending_items": [], "in_draft": False}
+        return {"items": [_finish_item(**{**base, **kw})], "summary": "M07 已在原请求的草稿中"}
+
+    dup = make_ctx({"request_id": "REQ-B", "items": [m07]})
+    check_rules(dup, "M07", "2026-11-04T19:00")
+    assert any("不在本次草稿里" in i for i in validate_finish(dup, fin(in_draft=True)))
+    assert validate_finish(dup, fin()) == []
+    report = build_report(dup, fin(), stats={})
+    item = report["items"][0]
+    assert item["draft_status"] == "in_other_draft" and item["existing_draft"]["request_key"] == "REQ-A"
+    assert report["task_status"] == "completed"  # 要求与原请求相同，原草稿已覆盖
+
+    moved = make_ctx({"request_id": "REQ-C", "items": [{**m07, "publish_at": "2026-11-04T21:00"}]})
+    check_rules(moved, "M07", "2026-11-04T21:00")
+    assert any("排期不同" in i for i in validate_finish(moved, fin()))
+    asked = fin(pending_items=["M07 已排在 19:00，如需改到 21:00 请用 REQ-A 重新提交"])
+    assert validate_finish(moved, asked) == []
+    assert build_report(moved, asked, stats={})["task_status"] == "needs_confirmation"
+    assert len(first.store.list_drafts()) == 1
+
+
 def test_happy_path_loop_with_parallel_finish_processed_last(make_ctx):
     ctx = make_ctx(REQ_CONFLICT)
     model = ScriptedModel([
