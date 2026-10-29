@@ -1,0 +1,50 @@
+{
+  "request_id": "REQ-08",
+  "request_key": "REQ-08",
+  "task_status": "save_failed",
+  "publish_status": "not_published",
+  "publish_note": "本 Agent 只保存排期草稿，不调用任何发布接口",
+  "draft": {
+    "status": "failed",
+    "draft_id": null,
+    "attempts": 3,
+    "errors": [
+      "STORAGE_UNAVAILABLE",
+      "STORAGE_UNAVAILABLE",
+      "STORAGE_UNAVAILABLE"
+    ]
+  },
+  "items": [
+    {
+      "material_id": "M02",
+      "requested": {
+        "channel": "xiaohongshu",
+        "publish_at": "2026-11-08T12:00"
+      },
+      "review_status": "pass",
+      "risk_reasons": [],
+      "rule_findings": [],
+      "suggested_channel": "xiaohongshu",
+      "suggested_slot": "2026-11-08T12:00",
+      "confirmation_status": "not_required",
+      "pending_items": [
+        "草稿保存失败（STORAGE_UNAVAILABLE），未写入，请稍后重新提交"
+      ],
+      "draft_status": "save_failed"
+    }
+  ],
+  "summary": "共 1 个素材，1 个未能保存；未发布任何内容。",
+  "stats": {
+    "model": "mock-rule-policy",
+    "model_turns": 7,
+    "tool_calls": 7,
+    "finish_rejections": 0,
+    "limits": {
+      "max_turns": 15,
+      "max_tool_calls": 40,
+      "max_finish_rejections": 2
+    },
+    "elapsed_sec": 0.0,
+    "usage": {}
+  }
+}

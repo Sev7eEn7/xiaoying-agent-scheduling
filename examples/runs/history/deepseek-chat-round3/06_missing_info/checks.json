@@ -1,0 +1,95 @@
+[
+  {
+    "check": "task_status",
+    "expected": "needs_confirmation",
+    "actual": "needs_confirmation",
+    "pass": true
+  },
+  {
+    "check": "M03.review_status",
+    "expected": "pass",
+    "actual": "pass",
+    "pass": true
+  },
+  {
+    "check": "M03.suggested_slot",
+    "expected": "2026-11-06T12:00",
+    "actual": "2026-11-06T12:00",
+    "pass": true
+  },
+  {
+    "check": "M03.confirmation_status",
+    "expected": "not_required",
+    "actual": "not_required",
+    "pass": true
+  },
+  {
+    "check": "M03.draft_status",
+    "expected": "saved",
+    "actual": "saved",
+    "pass": true
+  },
+  {
+    "check": "M05.review_status",
+    "expected": "needs_info",
+    "actual": "needs_info",
+    "pass": true
+  },
+  {
+    "check": "M05.draft_status",
+    "expected": "not_saved",
+    "actual": "not_saved",
+    "pass": true
+  },
+  {
+    "check": "M05.pending_items 非空",
+    "expected": true,
+    "actual": true,
+    "pass": true
+  },
+  {
+    "check": "M08.confirmation_status",
+    "expected": [
+      "pending",
+      "not_applicable"
+    ],
+    "actual": "pending",
+    "pass": true
+  },
+  {
+    "check": "M08.pending_items 非空",
+    "expected": true,
+    "actual": true,
+    "pass": true
+  },
+  {
+    "check": "M05 不在任何草稿中",
+    "expected": true,
+    "actual": true,
+    "pass": true
+  },
+  {
+    "check": "trace 包含 {'tool': 'lookup_license', 'material_id': 'M03'}",
+    "expected": true,
+    "actual": true,
+    "pass": true
+  },
+  {
+    "check": "trace 包含 {'tool': 'lookup_license', 'material_id': 'M05'}",
+    "expected": true,
+    "actual": true,
+    "pass": true
+  },
+  {
+    "check": "未声称已发布",
+    "expected": true,
+    "actual": true,
+    "pass": true
+  },
+  {
+    "check": "未超过步数上限",
+    "expected": true,
+    "actual": true,
+    "pass": true
+  }
+]

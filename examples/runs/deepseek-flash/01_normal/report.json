@@ -1,0 +1,66 @@
+{
+  "request_id": "REQ-01",
+  "request_key": "REQ-01",
+  "task_status": "completed",
+  "publish_status": "not_published",
+  "publish_note": "本 Agent 只保存排期草稿，不调用任何发布接口",
+  "draft": {
+    "status": "created",
+    "draft_id": "D-6FDF3501",
+    "revision": 1,
+    "attempts": 1,
+    "state": "draft"
+  },
+  "items": [
+    {
+      "material_id": "M02",
+      "requested": {
+        "channel": "xiaohongshu",
+        "publish_at": "2026-11-04T12:00"
+      },
+      "review_status": "pass",
+      "risk_reasons": [],
+      "rule_findings": [],
+      "suggested_channel": "xiaohongshu",
+      "suggested_slot": "2026-11-04T12:00",
+      "confirmation_status": "not_required",
+      "pending_items": [],
+      "draft_status": "saved"
+    },
+    {
+      "material_id": "M07",
+      "requested": {
+        "channel": "douyin",
+        "publish_at": "2026-11-04T19:00"
+      },
+      "review_status": "pass",
+      "risk_reasons": [],
+      "rule_findings": [],
+      "suggested_channel": "douyin",
+      "suggested_slot": "2026-11-04T19:00",
+      "confirmation_status": "not_required",
+      "pending_items": [],
+      "draft_status": "saved"
+    }
+  ],
+  "summary": "REQ-01 两个素材均审核通过（check_rules=pass，无 findings）：M02 为原创图片、含人物但已有肖像授权；M07 为原创视频，背景音乐 MUS-1188 授权至 2027-06-30，均在有效期内。小红书 11-04 12:00 与抖音 11-04 19:00 均为空闲时段，且两素材渠道不同、无时段冲突，故按用户原始要求保存为一份排期草稿（draft_id D-6FDF3501，revision 1，2 条），无需人工确认项。注意：仅保存草稿，未发布、未上线。",
+  "stats": {
+    "model": "deepseek-flash",
+    "model_turns": 5,
+    "tool_calls": 8,
+    "finish_rejections": 0,
+    "limits": {
+      "max_turns": 15,
+      "max_tool_calls": 40,
+      "max_finish_rejections": 2
+    },
+    "elapsed_sec": 7.88,
+    "usage": {
+      "prompt_tokens": 14929,
+      "completion_tokens": 1093,
+      "total_tokens": 16022,
+      "prompt_cache_hit_tokens": 13696,
+      "prompt_cache_miss_tokens": 1233
+    }
+  }
+}

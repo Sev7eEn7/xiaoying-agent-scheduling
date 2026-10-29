@@ -1,0 +1,51 @@
+{
+  "request_id": "REQ-02",
+  "request_key": "REQ-02",
+  "task_status": "completed",
+  "publish_status": "not_published",
+  "publish_note": "本 Agent 只保存排期草稿，不调用任何发布接口",
+  "draft": {
+    "status": "updated",
+    "draft_id": "D-763DEB3C",
+    "revision": 3,
+    "attempts": 1,
+    "state": "draft"
+  },
+  "items": [
+    {
+      "material_id": "M01",
+      "requested": {
+        "channel": "douyin",
+        "publish_at": "2026-11-03T18:00"
+      },
+      "review_status": "pass",
+      "risk_reasons": [],
+      "rule_findings": [],
+      "suggested_channel": "douyin",
+      "suggested_slot": "2026-11-03T18:00",
+      "confirmation_status": "not_required",
+      "pending_items": [],
+      "draft_status": "saved"
+    }
+  ],
+  "summary": "M01《磁吸手机壳开箱》审核通过：原创素材、音乐授权有效期至 2027-12-31、无真人出镜、非商业推广也未需广告标识；抖音 2026-11-03 18:00 时段查询为空闲，已按请求的渠道与时段保存为排期草稿（D-763DEB3C，草稿状态，未发布）。无待确认项。",
+  "stats": {
+    "model": "deepseek-flash",
+    "model_turns": 5,
+    "tool_calls": 5,
+    "finish_rejections": 0,
+    "limits": {
+      "max_turns": 15,
+      "max_tool_calls": 40,
+      "max_finish_rejections": 2
+    },
+    "elapsed_sec": 5.84,
+    "usage": {
+      "prompt_tokens": 13140,
+      "completion_tokens": 657,
+      "total_tokens": 13797,
+      "prompt_cache_hit_tokens": 12032,
+      "prompt_cache_miss_tokens": 1108
+    }
+  }
+}

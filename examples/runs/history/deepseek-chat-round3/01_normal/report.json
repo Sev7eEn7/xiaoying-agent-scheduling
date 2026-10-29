@@ -1,0 +1,66 @@
+{
+  "request_id": "REQ-01",
+  "request_key": "REQ-01",
+  "task_status": "completed",
+  "publish_status": "not_published",
+  "publish_note": "本 Agent 只保存排期草稿，不调用任何发布接口",
+  "draft": {
+    "status": "created",
+    "draft_id": "D-6FDF3501",
+    "revision": 1,
+    "attempts": 1,
+    "state": "draft"
+  },
+  "items": [
+    {
+      "material_id": "M02",
+      "requested": {
+        "channel": "xiaohongshu",
+        "publish_at": "2026-11-04T12:00"
+      },
+      "review_status": "pass",
+      "risk_reasons": [],
+      "rule_findings": [],
+      "suggested_channel": "xiaohongshu",
+      "suggested_slot": "2026-11-04T12:00",
+      "confirmation_status": "not_required",
+      "pending_items": [],
+      "draft_status": "saved"
+    },
+    {
+      "material_id": "M07",
+      "requested": {
+        "channel": "douyin",
+        "publish_at": "2026-11-04T19:00"
+      },
+      "review_status": "pass",
+      "risk_reasons": [],
+      "rule_findings": [],
+      "suggested_channel": "douyin",
+      "suggested_slot": "2026-11-04T19:00",
+      "confirmation_status": "not_required",
+      "pending_items": [],
+      "draft_status": "saved"
+    }
+  ],
+  "summary": "REQ-01 两个素材均审核通过（M02 原创图片、有肖像授权；M07 原创视频、音乐授权至 2027-06-30），请求时段在小红书/抖音均空闲且无冲突，已按用户要求原样保存为排期草稿 D-6FDF3501（revision 1），未发布。无需用户确认事项。",
+  "stats": {
+    "model": "deepseek-chat",
+    "model_turns": 5,
+    "tool_calls": 8,
+    "finish_rejections": 0,
+    "limits": {
+      "max_turns": 15,
+      "max_tool_calls": 40,
+      "max_finish_rejections": 2
+    },
+    "elapsed_sec": 7.27,
+    "usage": {
+      "prompt_tokens": 14929,
+      "completion_tokens": 1076,
+      "total_tokens": 16005,
+      "prompt_cache_hit_tokens": 11904,
+      "prompt_cache_miss_tokens": 3025
+    }
+  }
+}

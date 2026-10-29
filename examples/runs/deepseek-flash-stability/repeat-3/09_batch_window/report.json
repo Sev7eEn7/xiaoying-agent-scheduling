@@ -1,0 +1,70 @@
+{
+  "request_id": "REQ-09",
+  "request_key": "REQ-09",
+  "task_status": "completed",
+  "publish_status": "not_published",
+  "publish_note": "本 Agent 只保存排期草稿，不调用任何发布接口",
+  "draft": {
+    "status": "created",
+    "draft_id": "D-E0F7B21A",
+    "revision": 1,
+    "attempts": 1,
+    "state": "draft"
+  },
+  "items": [
+    {
+      "material_id": "M09",
+      "requested": {
+        "channel": "douyin",
+        "publish_at": "2026-11-05T20:00"
+      },
+      "review_status": "pass",
+      "risk_reasons": [],
+      "rule_findings": [],
+      "suggested_channel": "douyin",
+      "suggested_slot": "2026-11-05T20:00",
+      "confirmation_status": "not_required",
+      "pending_items": [],
+      "draft_status": "saved"
+    },
+    {
+      "material_id": "M10",
+      "requested": {
+        "channel": "douyin",
+        "publish_at": "2026-11-05T20:00",
+        "acceptable_window": {
+          "start": "2026-11-05T18:00",
+          "end": "2026-11-05T22:00"
+        }
+      },
+      "review_status": "pass",
+      "risk_reasons": [],
+      "rule_findings": [],
+      "suggested_channel": "douyin",
+      "suggested_slot": "2026-11-05T21:00",
+      "confirmation_status": "not_required",
+      "pending_items": [],
+      "draft_status": "saved"
+    }
+  ],
+  "summary": "REQ-09 处理完毕：M09、M10 审核均为 pass（无 risk findings，音乐授权分别到 2027-09-30，M10 肖像授权已具备）。二者原请求同为 douyin 2026-11-05T20:00，存在同渠道同时段冲突；按“最小改动硬性要求”原则，保留无窗口的 M09 在 20:00，把有 acceptable_window 的 M10 顺延至窗口内最近空闲时段 21:00（该时段在 18:00–22:00 窗口内，无需额外确认）。已合并保存为一份排期草稿：draft_id D-E0F7B21A（revision 1，state=draft，2 个素材）。仅为草稿，未发布、未上线。",
+  "stats": {
+    "model": "deepseek-flash",
+    "model_turns": 5,
+    "tool_calls": 8,
+    "finish_rejections": 0,
+    "limits": {
+      "max_turns": 15,
+      "max_tool_calls": 40,
+      "max_finish_rejections": 2
+    },
+    "elapsed_sec": 14.03,
+    "usage": {
+      "prompt_tokens": 16551,
+      "completion_tokens": 2377,
+      "total_tokens": 18928,
+      "prompt_cache_hit_tokens": 15232,
+      "prompt_cache_miss_tokens": 1319
+    }
+  }
+}

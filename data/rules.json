@@ -1,0 +1,28 @@
+{
+  "version": "2026-10-28",
+  "_note": "审核规则参数。规则语义由 src/scheduler_agent/rules.py 实现，词表与严重级别可在此调整。severity: block=阻断, review=需人工复核, missing=资料缺失, info=提示。",
+  "required_fields": ["title", "type", "owner", "caption", "license"],
+  "rules": {
+    "R01": {"name": "必填元数据", "severity": "missing"},
+    "R02": {"name": "版权授权有效期", "severity": "block"},
+    "R03": {"name": "背景音乐授权", "severity_missing": "missing", "severity_expired": "block"},
+    "R04": {
+      "name": "广告法极限用语",
+      "severity": "block",
+      "phrases": ["最有效", "最好", "最佳", "最强", "史上最", "全网最", "第一品牌", "销量第一", "排名第一", "顶级", "国家级", "100%", "绝对", "万能"]
+    },
+    "R05": {
+      "name": "功效/医疗宣称",
+      "severity": "review",
+      "categories": ["美妆护肤", "食品", "保健品"],
+      "phrases": ["祛痘", "根治", "治愈", "治疗", "药到病除", "消炎", "抗炎"]
+    },
+    "R06": {"name": "商业合作须标注广告", "severity": "review"},
+    "R07": {"name": "出镜人物肖像授权", "severity": "review"}
+  },
+  "slot_policy": {
+    "slot_minutes": 60,
+    "publish_hours": {"first": 8, "last": 23},
+    "_note": "整点发布；08:00 至 23:00 可发，夜间 00:00-07:59 禁发；同一渠道同一时段只能有一条内容。"
+  }
+}

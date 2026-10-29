@@ -1,0 +1,126 @@
+[
+  {
+    "role": "system",
+    "content": "你是内容团队的「素材审核与发布排期」助手。目标：对请求中的每个素材给出审核结论、风险原因、建议时段和待确认项，并把可以排期的素材保存为一份【排期草稿】。\n\n## 硬性边界\n1. 你没有发布能力，只能保存草稿。任何输出都不得声称“已发布”“已上线”“发布成功”。\n2. 用户给出的渠道和发布时间是硬性要求。需要改动时只能作为建议：confirmation_status=pending，并在 pending_items 写明待确认内容。只有新时段落在该素材的 acceptable_window 内，或请求的 confirmations 中用户已批准该时段时，才可以是 not_required / confirmed。\n3. 审核结论以 check_rules 的结果为依据：\n   - block：阻断，不得放入草稿，说明风险原因；\n   - review：可以放入草稿，但必须 pending 等待人工复核；\n   - incomplete：先判断能否补查（例如版权信息缺失可以用 lookup_license 查询版权登记库，查到后要重新 check_rules）；补查无果则 needs_info，不放入草稿，并列出需要补充的信息。\n4. 请求缺少发布时间等关键信息时不要自行编造，把它列为待确认项。\n5. 同一批次的多个素材不能占用同一渠道的同一时段。query_slots 可以通过 also_taken 传入你已规划的时段。多个素材争同一时段时，尽量少改动用户的硬性要求：优先调整能在自己 acceptable_window 内解决的素材，保留没有窗口的素材的原时段，使需要用户确认的改动最少。\n6. 时段以整点为单位，08:00–23:00 可发。需要替代时段时，默认选择不早于原要求的最近空闲时段（素材可能尚未就绪），除非用户允许的窗口另有更合适的选择。\n7. 把所有可排期素材合并为一次 save_schedule_draft。保存是幂等的：同一请求再次保存返回 duplicate（内容相同）或 updated（同一份草稿的新修订），都不会产生第二份草稿。\n8. 工具返回 ok=false 时，读 error：retryable=true 可以重试（同一工具最多再试 2 次）；仍失败就如实报告，绝不能声称已保存。保存校验失败（VALIDATION_FAILED）时按 issues 调整后再保存。\n9. 每次调用工具都要在 reason 中用一句话写明这一步的依据（基于已经观察到的结果）。\n10. 全部处理完后调用 finish。finish 会与工具记录核对，被拒绝时按 issues 修正后再次提交。"
+  },
+  {
+    "role": "user",
+    "content": "今天是 2026-10-29。请处理下面的排期请求（JSON）：\n```json\n{\n  \"request_id\": \"REQ-07\",\n  \"items\": [\n    {\n      \"material_id\": \"M04\",\n      \"channel\": \"douyin\",\n      \"publish_at\": \"2026-11-07T20:00\"\n    },\n    {\n      \"material_id\": \"M06\",\n      \"channel\": \"xiaohongshu\",\n      \"publish_at\": \"2026-11-07T12:00\"\n    }\n  ]\n}\n```"
+  },
+  {
+    "role": "assistant",
+    "content": "我先并行读取两个素材的元数据。",
+    "tool_calls": [
+      {
+        "id": "call_00_ET_GjMvRR6jvYaRO04iBkYV7361",
+        "type": "function",
+        "function": {
+          "name": "get_material",
+          "arguments": "{\"material_id\": \"M04\", \"reason\": \"需要先读取 M04 元数据以判断审核与排期条件\"}"
+        }
+      },
+      {
+        "id": "call_01_ET_NC68kj5u4pnvuJO1w2yP3579",
+        "type": "function",
+        "function": {
+          "name": "get_material",
+          "arguments": "{\"material_id\": \"M06\", \"reason\": \"需要先读取 M06 元数据以判断审核与排期条件\"}"
+        }
+      }
+    ]
+  },
+  {
+    "role": "tool",
+    "tool_call_id": "call_00_ET_GjMvRR6jvYaRO04iBkYV7361",
+    "content": "{\"ok\": true, \"found\": true, \"material\": {\"id\": \"M04\", \"title\": \"祛痘精华推广\", \"type\": \"video\", \"category\": \"美妆护肤\", \"owner\": \"商务组\", \"caption\": \"全网最有效的祛痘精华，7天100%见效，根治反复爆痘！\", \"license\": {\"type\": \"licensed\", \"holder\": \"合作品牌X\", \"expires_at\": \"2027-01-31\"}, \"music\": {\"used\": false}, \"has_person\": true, \"portrait_release\": true, \"is_commercial\": true, \"ad_label\": false}}"
+  },
+  {
+    "role": "tool",
+    "tool_call_id": "call_01_ET_NC68kj5u4pnvuJO1w2yP3579",
+    "content": "{\"ok\": true, \"found\": true, \"material\": {\"id\": \"M06\", \"title\": \"双11预热海报\", \"type\": \"image\", \"category\": \"活动\", \"owner\": \"活动组\", \"caption\": \"双11预热：关注账号即可领取满减券。\", \"license\": {\"type\": \"original\", \"holder\": \"活动组\", \"expires_at\": null}, \"music\": {\"used\": false}, \"has_person\": true, \"portrait_release\": false, \"is_commercial\": true, \"ad_label\": true}}"
+  },
+  {
+    "role": "assistant",
+    "content": "接下来按各自请求时段运行审核规则检查。",
+    "tool_calls": [
+      {
+        "id": "call_00_5cQMfJLccVB4F1I5yT2Z3674",
+        "type": "function",
+        "function": {
+          "name": "check_rules",
+          "arguments": "{\"material_id\": \"M04\", \"publish_at\": \"2026-11-07T20:00\", \"reason\": \"基于 M04 元数据（功效类文案+商业推广未标广告）按其请求时段校验审核结果\"}"
+        }
+      },
+      {
+        "id": "call_01_pniW1iplfwMLjbJ9fhUx6590",
+        "type": "function",
+        "function": {
+          "name": "check_rules",
+          "arguments": "{\"material_id\": \"M06\", \"publish_at\": \"2026-11-07T12:00\", \"reason\": \"基于 M06 元数据（含人物但无肖像授权）按其请求时段校验审核结果\"}"
+        }
+      }
+    ]
+  },
+  {
+    "role": "tool",
+    "tool_call_id": "call_00_5cQMfJLccVB4F1I5yT2Z3674",
+    "content": "{\"ok\": true, \"material_id\": \"M04\", \"rules_version\": \"2026-10-28\", \"publish_date\": \"2026-11-07\", \"result\": \"block\", \"findings\": [{\"rule_id\": \"R04\", \"severity\": \"block\", \"field\": \"caption\", \"message\": \"包含广告法禁用的极限用语\", \"evidence\": \"最有效、全网最、100%\"}, {\"rule_id\": \"R05\", \"severity\": \"review\", \"field\": \"caption\", \"message\": \"疑似功效/医疗宣称，需法务复核\", \"evidence\": \"祛痘、根治\"}, {\"rule_id\": \"R06\", \"severity\": \"review\", \"field\": \"ad_label\", \"message\": \"商业合作内容未标注“广告”\"}], \"license_source\": \"metadata\"}"
+  },
+  {
+    "role": "tool",
+    "tool_call_id": "call_01_pniW1iplfwMLjbJ9fhUx6590",
+    "content": "{\"ok\": true, \"material_id\": \"M06\", \"rules_version\": \"2026-10-28\", \"publish_date\": \"2026-11-07\", \"result\": \"review\", \"findings\": [{\"rule_id\": \"R07\", \"severity\": \"review\", \"field\": \"portrait_release\", \"message\": \"出镜人物肖像授权未回传\"}], \"license_source\": \"metadata\"}"
+  },
+  {
+    "role": "assistant",
+    "content": "M04 被阻断（极限用语），不进入草稿；M06 需人工复核，可放入草稿，我先查其时段可用性。",
+    "tool_calls": [
+      {
+        "id": "call_00_w7B8cE5V2P7YBX55edGP2754",
+        "type": "function",
+        "function": {
+          "name": "query_slots",
+          "arguments": "{\"channel\": \"xiaohongshu\", \"publish_at\": \"2026-11-07T12:00\", \"reason\": \"M06 审核为 review 可排期，按用户指定的 11-07 12:00 查小红书时段是否可用\"}"
+        }
+      }
+    ]
+  },
+  {
+    "role": "tool",
+    "tool_call_id": "call_00_w7B8cE5V2P7YBX55edGP2754",
+    "content": "{\"ok\": true, \"channel\": \"xiaohongshu\", \"requested\": {\"slot\": \"2026-11-07T12:00\", \"status\": \"free\"}}"
+  },
+  {
+    "role": "assistant",
+    "content": "",
+    "tool_calls": [
+      {
+        "id": "call_00_iAi6WeJtrMw7pNXKUBPv5375",
+        "type": "function",
+        "function": {
+          "name": "save_schedule_draft",
+          "arguments": "{\"items\": [{\"material_id\": \"M06\", \"channel\": \"xiaohongshu\", \"slot\": \"2026-11-07T12:00\", \"confirmation_status\": \"pending\", \"note\": \"审核结果为 review：R07 出镜人物肖像授权未回传，需人工复核并补齐肖像授权；时段与用户要求一致，未改动\"}], \"reason\": \"M06 审核为 review 且指定时段空闲，按要求时段放入草稿并标记待确认；M04 因 block 不纳入\"}"
+        }
+      }
+    ]
+  },
+  {
+    "role": "tool",
+    "tool_call_id": "call_00_iAi6WeJtrMw7pNXKUBPv5375",
+    "content": "{\"ok\": true, \"saved\": true, \"status\": \"created\", \"draft_id\": \"D-DD1748B1\", \"revision\": 1, \"content_hash\": \"80711749474fe293\", \"state\": \"draft\", \"items_saved\": 1, \"note\": \"仅保存为排期草稿，未发布；duplicate 表示同一请求已存在相同草稿，未重复创建\"}"
+  },
+  {
+    "role": "assistant",
+    "content": "",
+    "tool_calls": [
+      {
+        "id": "call_00_cetH3Oq6YpoEeVLyQFpd2217",
+        "type": "function",
+        "function": {
+          "name": "finish",
+          "arguments": "{\"items\": [{\"material_id\": \"M04\", \"review_status\": \"blocked\", \"risk_reasons\": [\"R04(block)：文案含广告法禁用极限用语“最有效/全网最/100%”\", \"R05(review)：文案“祛痘、根治”疑似功效/医疗宣称，需法务复核\", \"R06(review)：商业合作内容未标注“广告”\"], \"suggested_channel\": \"douyin\", \"suggested_slot\": null, \"confirmation_status\": \"not_applicable\", \"pending_items\": [\"需重写文案，删除“最有效/全网最/100%/根治”等极限与医疗宣称用语\", \"修改后需重新提交审核（含法务复核功效宣称）\", \"商业合作需补标“广告”标识\", \"审核通过前无可用建议时段，暂不可排期\"], \"in_draft\": false}, {\"material_id\": \"M06\", \"review_status\": \"review\", \"risk_reasons\": [\"R07(review)：出镜人物肖像授权未回传\"], \"suggested_channel\": \"xiaohongshu\", \"suggested_slot\": \"2026-11-07T12:00\", \"confirmation_status\": \"pending\", \"pending_items\": [\"补齐出镜人物肖像授权回传并完成人工复核（R07）\", \"草稿已按用户要求时段 2026-11-07T12:00 占位，复核通过后方可推进\"], \"in_draft\": true}], \"summary\": \"本批 2 个素材：M04（抖音 11-07 20:00）审核结论为 block——文案含广告法禁用极限用语（最有效/全网最/100%），另有功效医疗宣称与未标“广告”两项需复核问题，已阻断、未纳入草稿，需改写文案并重新送审后再排期。M06（小红书 11-07 12:00）结论为 review，仅肖像授权未回传一项问题，指定时段空闲且与用户要求一致，已连同待确认说明保存为排期草稿 D-DD1748B1（修订 1，仅草稿，未发布），需补齐肖像授权并完成人工复核。M06 时段未做任何改动，无争用冲突。\"}"
+        }
+      }
+    ]
+  }
+]

@@ -1,0 +1,44 @@
+[
+  {
+    "check": "task_status",
+    "expected": "completed",
+    "actual": "completed",
+    "pass": true
+  },
+  {
+    "check": "M07.suggested_slot",
+    "expected": "2026-11-08T19:00",
+    "actual": "2026-11-08T19:00",
+    "pass": true
+  },
+  {
+    "check": "M07.confirmation_status",
+    "expected": "not_required",
+    "actual": "not_required",
+    "pass": true
+  },
+  {
+    "check": "M07.draft_status",
+    "expected": "saved",
+    "actual": "saved",
+    "pass": true
+  },
+  {
+    "check": "draft.status",
+    "expected": "created",
+    "actual": "created",
+    "pass": true
+  },
+  {
+    "check": "未声称已发布",
+    "expected": true,
+    "actual": true,
+    "pass": true
+  },
+  {
+    "check": "未超过步数上限",
+    "expected": true,
+    "actual": true,
+    "pass": true
+  }
+]

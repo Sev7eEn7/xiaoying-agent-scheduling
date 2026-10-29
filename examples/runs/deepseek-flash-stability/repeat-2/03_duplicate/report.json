@@ -1,0 +1,53 @@
+{
+  "request_id": "REQ-02",
+  "request_key": "REQ-02",
+  "task_status": "needs_confirmation",
+  "publish_status": "not_published",
+  "publish_note": "本 Agent 只保存排期草稿，不调用任何发布接口",
+  "draft": {
+    "status": "duplicate",
+    "draft_id": "D-763DEB3C",
+    "revision": 1,
+    "attempts": 1,
+    "state": "draft"
+  },
+  "items": [
+    {
+      "material_id": "M01",
+      "requested": {
+        "channel": "douyin",
+        "publish_at": "2026-11-03T18:00"
+      },
+      "review_status": "pass",
+      "risk_reasons": [],
+      "rule_findings": [],
+      "suggested_channel": "douyin",
+      "suggested_slot": "2026-11-03T19:00",
+      "confirmation_status": "pending",
+      "pending_items": [
+        "用户要求 2026-11-03T18:00 已被排期 S-1001（M90 品牌直播预告）占用，请确认是否接受改至 2026-11-03T19:00（最近空闲且不早于原要求）"
+      ],
+      "draft_status": "saved"
+    }
+  ],
+  "summary": "M01《磁吸手机壳开箱》审核通过（原创素材、音乐授权至 2027-12-31、无真人出镜、非商业投放，findings 为空）。唯一问题：用户指定的抖音 2026-11-03T18:00 已被 S-1001 占用，按“不早于原要求的最近空闲时段”建议 19:00，该时段空闲且复查仍为 pass。因请求未提供 acceptable_window 或确认，草稿中该条为 pending 待确认。已合并保存为排期草稿 D-763DEB3C（重复保存返回 duplicate，未产生第二份草稿），仅为草稿，未发布、未上线。",
+  "stats": {
+    "model": "deepseek-flash",
+    "model_turns": 5,
+    "tool_calls": 7,
+    "finish_rejections": 0,
+    "limits": {
+      "max_turns": 15,
+      "max_tool_calls": 40,
+      "max_finish_rejections": 2
+    },
+    "elapsed_sec": 10.89,
+    "usage": {
+      "prompt_tokens": 15208,
+      "completion_tokens": 1615,
+      "total_tokens": 16823,
+      "prompt_cache_hit_tokens": 14208,
+      "prompt_cache_miss_tokens": 1000
+    }
+  }
+}

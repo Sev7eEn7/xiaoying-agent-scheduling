@@ -1,0 +1,242 @@
+[
+  {
+    "role": "system",
+    "content": "你是内容团队的「素材审核与发布排期」助手。目标：对请求中的每个素材给出审核结论、风险原因、建议时段和待确认项，并把可以排期的素材保存为一份【排期草稿】。\n\n## 硬性边界\n1. 你没有发布能力，只能保存草稿。任何输出都不得声称“已发布”“已上线”“发布成功”。\n2. 用户给出的渠道和发布时间是硬性要求。需要改动时只能作为建议：confirmation_status=pending，并在 pending_items 写明待确认内容。只有新时段落在该素材的 acceptable_window 内，或请求的 confirmations 中用户已批准该时段时，才可以是 not_required / confirmed。\n3. 审核结论以 check_rules 的结果为依据：\n   - block：阻断，不得放入草稿，说明风险原因；\n   - review：可以放入草稿，但必须 pending 等待人工复核；\n   - incomplete：先判断能否补查（例如版权信息缺失可以用 lookup_license 查询版权登记库，查到后要重新 check_rules）；补查无果则 needs_info，不放入草稿，并列出需要补充的信息。\n4. 请求缺少发布时间等关键信息时不要自行编造，把它列为待确认项。\n5. 同一批次的多个素材不能占用同一渠道的同一时段。query_slots 可以通过 also_taken 传入你已规划的时段。多个素材争同一时段时，尽量少改动用户的硬性要求：优先调整能在自己 acceptable_window 内解决的素材，保留没有窗口的素材的原时段，使需要用户确认的改动最少。\n6. 时段以整点为单位，08:00–23:00 可发。需要替代时段时，默认选择不早于原要求的最近空闲时段（素材可能尚未就绪），除非用户允许的窗口另有更合适的选择。\n7. 把所有可排期素材合并为一次 save_schedule_draft。保存是幂等的：同一请求再次保存返回 duplicate（内容相同）或 updated（同一份草稿的新修订），都不会产生第二份草稿。\n8. 工具返回 ok=false 时，读 error：retryable=true 可以重试（同一工具最多再试 2 次）；仍失败就如实报告，绝不能声称已保存。保存校验失败（VALIDATION_FAILED）时按 issues 调整后再保存。\n9. 每次调用工具都要在 reason 中用一句话写明这一步的依据（基于已经观察到的结果）。\n10. 全部处理完后调用 finish。finish 会与工具记录核对，被拒绝时按 issues 修正后再次提交。"
+  },
+  {
+    "role": "user",
+    "content": "今天是 2026-10-29。请处理下面的排期请求（JSON）：\n```json\n{\n  \"request_id\": \"REQ-06\",\n  \"items\": [\n    {\n      \"material_id\": \"M03\",\n      \"channel\": \"douyin\",\n      \"publish_at\": \"2026-11-06T12:00\"\n    },\n    {\n      \"material_id\": \"M05\",\n      \"channel\": \"douyin\",\n      \"publish_at\": \"2026-11-06T15:00\"\n    },\n    {\n      \"material_id\": \"M08\",\n      \"channel\": \"xiaohongshu\"\n    }\n  ]\n}\n```"
+  },
+  {
+    "role": "assistant",
+    "content": "我先读取三个素材的元数据，了解基本信息。",
+    "tool_calls": [
+      {
+        "id": "call_00_9smvsVKRzsCmNZzv9ze12660",
+        "type": "function",
+        "function": {
+          "name": "get_material",
+          "arguments": "{\"material_id\": \"M03\", \"reason\": \"请求要求为 M03 排期，先读取素材元数据\"}"
+        }
+      },
+      {
+        "id": "call_01_n0dsNBVYgmcnjIc07m6T5218",
+        "type": "function",
+        "function": {
+          "name": "get_material",
+          "arguments": "{\"material_id\": \"M05\", \"reason\": \"请求要求为 M05 排期，先读取素材元数据\"}"
+        }
+      },
+      {
+        "id": "call_02_6vrLDH9514cXM0JzItdl2302",
+        "type": "function",
+        "function": {
+          "name": "get_material",
+          "arguments": "{\"material_id\": \"M08\", \"reason\": \"请求要求为 M08 排期，先读取素材元数据\"}"
+        }
+      }
+    ]
+  },
+  {
+    "role": "tool",
+    "tool_call_id": "call_00_9smvsVKRzsCmNZzv9ze12660",
+    "content": "{\"ok\": true, \"found\": true, \"material\": {\"id\": \"M03\", \"title\": \"社区咖啡馆探店\", \"type\": \"video\", \"category\": \"本地生活\", \"owner\": \"内容组C\", \"caption\": \"周末走访三家社区咖啡馆，记录各自的招牌饮品。\", \"license\": null, \"music\": {\"used\": true, \"license_id\": \"MUS-2210\", \"expires_at\": \"2027-03-31\"}, \"has_person\": true, \"portrait_release\": true, \"is_commercial\": false, \"ad_label\": false}}"
+  },
+  {
+    "role": "tool",
+    "tool_call_id": "call_01_n0dsNBVYgmcnjIc07m6T5218",
+    "content": "{\"ok\": true, \"found\": true, \"material\": {\"id\": \"M05\", \"title\": \"用户投稿：第一次带娃露营\", \"type\": \"video\", \"category\": \"生活方式\", \"owner\": null, \"caption\": \"第一次带娃露营，分享一份新手装备清单。\", \"license\": null, \"music\": {\"used\": true, \"license_id\": null, \"expires_at\": null}, \"has_person\": true, \"portrait_release\": null, \"is_commercial\": false, \"ad_label\": false}}"
+  },
+  {
+    "role": "tool",
+    "tool_call_id": "call_02_6vrLDH9514cXM0JzItdl2302",
+    "content": "{\"ok\": true, \"found\": true, \"material\": {\"id\": \"M08\", \"title\": \"五分钟快手早餐合集\", \"type\": \"image\", \"category\": \"美食\", \"owner\": \"内容组B\", \"caption\": \"五分钟就能做好的快手早餐合集。\", \"license\": {\"type\": \"original\", \"holder\": \"内容组B\", \"expires_at\": null}, \"music\": {\"used\": false}, \"has_person\": false, \"portrait_release\": null, \"is_commercial\": false, \"ad_label\": false}}"
+  },
+  {
+    "role": "assistant",
+    "content": "",
+    "tool_calls": [
+      {
+        "id": "call_00_GxkowaZVlDf12q2soYeL6251",
+        "type": "function",
+        "function": {
+          "name": "check_rules",
+          "arguments": "{\"material_id\": \"M03\", \"publish_at\": \"2026-11-06T12:00\", \"reason\": \"按请求的抖音 11-06 12:00 时段审核 M03 的合规与授权有效期\"}"
+        }
+      },
+      {
+        "id": "call_01_S85hmJUbmJyuXTSOKnfN7741",
+        "type": "function",
+        "function": {
+          "name": "check_rules",
+          "arguments": "{\"material_id\": \"M05\", \"publish_at\": \"2026-11-06T15:00\", \"reason\": \"按请求的抖音 11-06 15:00 时段审核 M05，确认是否为资料缺失\"}"
+        }
+      },
+      {
+        "id": "call_02_PFzEnyBWPdiIy9VRFb067501",
+        "type": "function",
+        "function": {
+          "name": "lookup_license",
+          "arguments": "{\"material_id\": \"M05\", \"reason\": \"M05 元数据中版权与音乐授权信息为空，先查版权登记库补查\"}"
+        }
+      },
+      {
+        "id": "call_03_M99RT6uomXdZ8qeP45SQ2578",
+        "type": "function",
+        "function": {
+          "name": "check_rules",
+          "arguments": "{\"material_id\": \"M08\", \"reason\": \"M08 未给出发布时间，先审核其内容合规性，再决定时段\"}"
+        }
+      },
+      {
+        "id": "call_04_mfxYVbLq19EPK2Gg8HBD1213",
+        "type": "function",
+        "function": {
+          "name": "query_slots",
+          "arguments": "{\"channel\": \"douyin\", \"publish_at\": \"2026-11-06T12:00\", \"reason\": \"M03 要求抖音 11-06 12:00，先确认该整点是否可用\"}"
+        }
+      },
+      {
+        "id": "call_05_WrDRoM4n5s5bTycQU4bN2734",
+        "type": "function",
+        "function": {
+          "name": "query_slots",
+          "arguments": "{\"channel\": \"douyin\", \"publish_at\": \"2026-11-06T15:00\", \"reason\": \"M05 要求抖音 11-06 15:00，先确认该整点是否可用\"}"
+        }
+      }
+    ]
+  },
+  {
+    "role": "tool",
+    "tool_call_id": "call_00_GxkowaZVlDf12q2soYeL6251",
+    "content": "{\"ok\": true, \"material_id\": \"M03\", \"rules_version\": \"2026-10-28\", \"publish_date\": \"2026-11-06\", \"result\": \"incomplete\", \"findings\": [{\"rule_id\": \"R01\", \"severity\": \"missing\", \"field\": \"license\", \"message\": \"缺少必填字段 license；可查询版权登记库补查\"}], \"license_source\": \"none\"}"
+  },
+  {
+    "role": "tool",
+    "tool_call_id": "call_01_S85hmJUbmJyuXTSOKnfN7741",
+    "content": "{\"ok\": true, \"material_id\": \"M05\", \"rules_version\": \"2026-10-28\", \"publish_date\": \"2026-11-06\", \"result\": \"incomplete\", \"findings\": [{\"rule_id\": \"R01\", \"severity\": \"missing\", \"field\": \"owner\", \"message\": \"缺少必填字段 owner\"}, {\"rule_id\": \"R01\", \"severity\": \"missing\", \"field\": \"license\", \"message\": \"缺少必填字段 license；可查询版权登记库补查\"}, {\"rule_id\": \"R03\", \"severity\": \"missing\", \"field\": \"music.license_id\", \"message\": \"使用了背景音乐但缺少音乐授权编号\"}, {\"rule_id\": \"R07\", \"severity\": \"review\", \"field\": \"portrait_release\", \"message\": \"出镜人物肖像授权未提供\"}], \"license_source\": \"none\"}"
+  },
+  {
+    "role": "tool",
+    "tool_call_id": "call_02_PFzEnyBWPdiIy9VRFb067501",
+    "content": "{\"ok\": true, \"material_id\": \"M05\", \"found\": false, \"record\": null}"
+  },
+  {
+    "role": "tool",
+    "tool_call_id": "call_03_M99RT6uomXdZ8qeP45SQ2578",
+    "content": "{\"ok\": true, \"material_id\": \"M08\", \"rules_version\": \"2026-10-28\", \"publish_date\": null, \"result\": \"pass\", \"findings\": [], \"license_source\": \"metadata\"}"
+  },
+  {
+    "role": "tool",
+    "tool_call_id": "call_04_mfxYVbLq19EPK2Gg8HBD1213",
+    "content": "{\"ok\": true, \"channel\": \"douyin\", \"requested\": {\"slot\": \"2026-11-06T12:00\", \"status\": \"free\"}}"
+  },
+  {
+    "role": "tool",
+    "tool_call_id": "call_05_WrDRoM4n5s5bTycQU4bN2734",
+    "content": "{\"ok\": true, \"channel\": \"douyin\", \"requested\": {\"slot\": \"2026-11-06T15:00\", \"status\": \"free\"}}"
+  },
+  {
+    "role": "assistant",
+    "content": "M03 缺少 license 可补查；M05 版权库无记录；先补查 M03 的版权登记。",
+    "tool_calls": [
+      {
+        "id": "call_00_5TAuI51yDIZrH3INg7pF5526",
+        "type": "function",
+        "function": {
+          "name": "lookup_license",
+          "arguments": "{\"material_id\": \"M03\", \"reason\": \"M03 审核为 incomplete 且提示可查版权登记库，执行补查后需重新审核\"}"
+        }
+      }
+    ]
+  },
+  {
+    "role": "tool",
+    "tool_call_id": "call_00_5TAuI51yDIZrH3INg7pF5526",
+    "content": "{\"ok\": true, \"material_id\": \"M03\", \"found\": true, \"record\": {\"registry_id\": \"CR-5531\", \"type\": \"original\", \"holder\": \"内容组C\", \"expires_at\": \"2027-06-30\"}}"
+  },
+  {
+    "role": "assistant",
+    "content": "版权登记库查到 M03 的登记记录，重新审核该素材在目标时段是否合规。",
+    "tool_calls": [
+      {
+        "id": "call_00_bgAId2Fb9DQi167Clwn49951",
+        "type": "function",
+        "function": {
+          "name": "check_rules",
+          "arguments": "{\"material_id\": \"M03\", \"publish_at\": \"2026-11-06T12:00\", \"reason\": \"已查到 M03 版权登记记录（CR-5531，有效期至 2027-06-30），重新审核该时段是否通过\"}"
+        }
+      },
+      {
+        "id": "call_01_ZUvMntPuh9C3yGtCf4tX0390",
+        "type": "function",
+        "function": {
+          "name": "query_slots",
+          "arguments": "{\"channel\": \"douyin\", \"publish_at\": \"2026-11-06T12:00\", \"also_taken\": [], \"reason\": \"再次确认 M03 的抖音 11-06 12:00 在本批次规划下仍可用\"}"
+        }
+      }
+    ]
+  },
+  {
+    "role": "tool",
+    "tool_call_id": "call_00_bgAId2Fb9DQi167Clwn49951",
+    "content": "{\"ok\": true, \"material_id\": \"M03\", \"rules_version\": \"2026-10-28\", \"publish_date\": \"2026-11-06\", \"result\": \"pass\", \"findings\": [], \"license_source\": \"registry\"}"
+  },
+  {
+    "role": "tool",
+    "tool_call_id": "call_01_ZUvMntPuh9C3yGtCf4tX0390",
+    "content": "{\"ok\": true, \"channel\": \"douyin\", \"requested\": {\"slot\": \"2026-11-06T12:00\", \"status\": \"free\"}}"
+  },
+  {
+    "role": "assistant",
+    "content": "M03 已通过审核且时段空闲；M05 补查无记录、缺多项必填信息，M08 缺发布时间。先把唯一可排期的 M03 保存为草稿。",
+    "tool_calls": [
+      {
+        "id": "call_00_i9skYLonWWbouoGr6ike7383",
+        "type": "function",
+        "function": {
+          "name": "save_schedule_draft",
+          "arguments": "{\"items\": [{\"material_id\": \"M03\", \"channel\": \"douyin\", \"slot\": \"2026-11-06T12:00\", \"confirmation_status\": \"not_required\"}], \"reason\": \"M03 补查版权登记后审核通过，抖音 11-06 12:00 空闲且与用户要求一致；M05、M08 尚不具备排期条件，不纳入草稿\"}"
+        }
+      }
+    ]
+  },
+  {
+    "role": "tool",
+    "tool_call_id": "call_00_i9skYLonWWbouoGr6ike7383",
+    "content": "{\"ok\": true, \"saved\": true, \"status\": \"created\", \"draft_id\": \"D-E1DC4F7C\", \"revision\": 1, \"content_hash\": \"95c673e9aa0a9a23\", \"state\": \"draft\", \"items_saved\": 1, \"note\": \"仅保存为排期草稿，未发布；duplicate 表示同一请求已存在相同草稿，未重复创建\"}"
+  },
+  {
+    "role": "assistant",
+    "content": "",
+    "tool_calls": [
+      {
+        "id": "call_00_3d5uZhnL2FKXiTPwDAaz8000",
+        "type": "function",
+        "function": {
+          "name": "finish",
+          "arguments": "{\"items\": [{\"material_id\": \"M03\", \"review_status\": \"pass\", \"risk_reasons\": [], \"suggested_channel\": \"douyin\", \"suggested_slot\": \"2026-11-06T12:00\", \"confirmation_status\": \"not_required\", \"pending_items\": [], \"in_draft\": true}, {\"material_id\": \"M05\", \"review_status\": \"needs_info\", \"risk_reasons\": [\"缺少必填字段 owner（素材归属方未知，用户投稿来源无法核实）\", \"缺少必填字段 license，且版权登记库补查无记录（lookup_license found=false）\", \"使用了背景音乐但缺少音乐授权编号 music.license_id 及到期时间\", \"出镜人物肖像授权 portrait_release 未提供，需人工复核\"], \"suggested_channel\": \"douyin\", \"suggested_slot\": null, \"confirmation_status\": \"pending\", \"pending_items\": [\"补充素材归属方 owner 与版权授权信息\", \"补充背景音乐授权编号及有效期\", \"补充出镜人物肖像授权（或删除出镜人物画面）\", \"资料补齐后需重新审核，才能确认 2026-11-06 15:00 抖音时段（该时段当前空闲）\"], \"in_draft\": false}, {\"material_id\": \"M08\", \"review_status\": \"pass\", \"risk_reasons\": [], \"suggested_channel\": \"xiaohongshu\", \"suggested_slot\": null, \"confirmation_status\": \"pending\", \"pending_items\": [\"请求未给出发布时间：请确认小红书的具体发布日期与整点时段，确认后再校验占用并排期\"], \"in_draft\": false}], \"summary\": \"本批次仅 M03 可排期：补查版权登记库得到记录 CR-5531（权利人内容组C，有效期至 2027-06-30）后审核通过，抖音 2026-11-06 12:00 空闲，已按用户要求并入草稿 D-E1DC4F7C（revision 1，仅草稿，未发布）。M05 审核为资料缺失：owner 与 license 为空且版权库无记录、背景音乐无授权编号、肖像授权缺失，补查无果，不进入草稿，需补齐信息后重新审核。M08 内容审核通过（原创、无人物），但请求未提供发布时间，无法排期，待确认具体时段后可补入同一草稿。请勿将本次操作理解为已发布。\"}"
+        }
+      }
+    ]
+  },
+  {
+    "role": "tool",
+    "tool_call_id": "call_00_3d5uZhnL2FKXiTPwDAaz8000",
+    "content": "{\"ok\": false, \"error\": {\"code\": \"REPORT_REJECTED\", \"retryable\": true, \"message\": \"finish 与工具记录不一致，请修正后重新提交\", \"issues\": [\"输出中出现“已发布/上线/发布成功”等表述；本系统只保存草稿，不能声称发布\"]}}"
+  },
+  {
+    "role": "assistant",
+    "content": "",
+    "tool_calls": [
+      {
+        "id": "call_00_0u9PleXe0po93ZFwcALm1211",
+        "type": "function",
+        "function": {
+          "name": "finish",
+          "arguments": "{\"items\": [{\"confirmation_status\": \"not_required\", \"in_draft\": true, \"material_id\": \"M03\", \"pending_items\": [], \"review_status\": \"pass\", \"risk_reasons\": [], \"suggested_channel\": \"douyin\", \"suggested_slot\": \"2026-11-06T12:00\"}, {\"confirmation_status\": \"pending\", \"in_draft\": false, \"material_id\": \"M05\", \"pending_items\": [\"补充素材归属方 owner 与版权授权信息\", \"补充背景音乐授权编号及有效期\", \"补充出镜人物肖像授权（或删除出镜人物画面）\", \"资料补齐后需重新审核，才能确认 2026-11-06 15:00 抖音时段（该时段当前空闲）\"], \"review_status\": \"needs_info\", \"risk_reasons\": [\"缺少必填字段 owner（素材归属方未知，用户投稿来源无法核实）\", \"缺少必填字段 license，且版权登记库补查无记录（lookup_license found=false）\", \"使用了背景音乐但缺少音乐授权编号 music.license_id 及到期时间\", \"出镜人物肖像授权 portrait_release 未提供，需人工复核\"], \"suggested_channel\": \"douyin\", \"suggested_slot\": null}, {\"confirmation_status\": \"pending\", \"in_draft\": false, \"material_id\": \"M08\", \"pending_items\": [\"请求未给出发布时间：请确认小红书的具体发布日期与整点时段，确认后再校验占用并排期\"], \"review_status\": \"pass\", \"risk_reasons\": [], \"suggested_channel\": \"xiaohongshu\", \"suggested_slot\": null}], \"summary\": \"本批次仅 M03 可排期：补查版权登记库得到记录 CR-5531（权利人内容组C，有效期至 2027-06-30）后审核通过，抖音 2026-11-06 12:00 空闲，已按用户要求写入草稿 D-E1DC4F7C（revision 1，草稿状态，未对外推送）。M05 审核为资料缺失：owner 与 license 为空且版权库无记录、背景音乐无授权编号、肖像授权缺失，补查无果，不进入草稿，需补齐信息后重新审核。M08 内容审核通过（原创、无人物），但请求未提供时间，无法排期，待确认具体时段后可补入同一草稿。\"}"
+        }
+      }
+    ]
+  }
+]

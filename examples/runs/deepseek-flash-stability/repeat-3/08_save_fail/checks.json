@@ -1,0 +1,44 @@
+[
+  {
+    "check": "task_status",
+    "expected": "save_failed",
+    "actual": "save_failed",
+    "pass": true
+  },
+  {
+    "check": "M02.review_status",
+    "expected": "pass",
+    "actual": "pass",
+    "pass": true
+  },
+  {
+    "check": "M02.draft_status",
+    "expected": "save_failed",
+    "actual": "save_failed",
+    "pass": true
+  },
+  {
+    "check": "draft.status",
+    "expected": "failed",
+    "actual": "failed",
+    "pass": true
+  },
+  {
+    "check": "存储中的草稿数",
+    "expected": 0,
+    "actual": 0,
+    "pass": true
+  },
+  {
+    "check": "未声称已发布",
+    "expected": true,
+    "actual": true,
+    "pass": true
+  },
+  {
+    "check": "未超过步数上限",
+    "expected": true,
+    "actual": true,
+    "pass": true
+  }
+]

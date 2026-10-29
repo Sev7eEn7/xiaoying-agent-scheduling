@@ -1,0 +1,42 @@
+{
+  "drafts": {
+    "D-E1DC4F7C": {
+      "draft_id": "D-E1DC4F7C",
+      "request_key": "REQ-06",
+      "state": "draft",
+      "revision": 1,
+      "content_hash": "ac356697bb23774d",
+      "items": [
+        {
+          "material_id": "M03",
+          "channel": "douyin",
+          "slot": "2026-11-06T12:00",
+          "requested_channel": "douyin",
+          "requested_slot": "2026-11-06T12:00",
+          "review_result": "pass",
+          "confirmation_status": "not_required",
+          "note": ""
+        },
+        {
+          "material_id": "M08",
+          "channel": "xiaohongshu",
+          "slot": "2026-11-06T12:00",
+          "requested_channel": "xiaohongshu",
+          "requested_slot": null,
+          "review_result": "pass",
+          "confirmation_status": "pending",
+          "note": "请求未提供发布时间，暂按 2026-11-06 12:00 小红书占位，待用户确认具体时段"
+        }
+      ],
+      "created_at": "2026-10-29T15:25:40",
+      "updated_at": "2026-10-29T15:25:40",
+      "history": [
+        {
+          "revision": 1,
+          "content_hash": "ac356697bb23774d",
+          "at": "2026-10-29T15:25:40"
+        }
+      ]
+    }
+  }
+}

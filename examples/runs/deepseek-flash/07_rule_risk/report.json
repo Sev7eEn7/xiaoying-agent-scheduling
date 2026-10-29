@@ -1,0 +1,84 @@
+{
+  "request_id": "REQ-07",
+  "request_key": "REQ-07",
+  "task_status": "needs_confirmation",
+  "publish_status": "not_published",
+  "publish_note": "本 Agent 只保存排期草稿，不调用任何发布接口",
+  "draft": {
+    "status": "created",
+    "draft_id": "D-DD1748B1",
+    "revision": 1,
+    "attempts": 1,
+    "state": "draft"
+  },
+  "items": [
+    {
+      "material_id": "M04",
+      "requested": {
+        "channel": "douyin",
+        "publish_at": "2026-11-07T20:00"
+      },
+      "review_status": "blocked",
+      "risk_reasons": [
+        "R04（block）：文案含广告法禁用极限用语——「最有效」「全网最」「100%」",
+        "R05（review）：疑似功效/医疗宣称（祛痘、根治），需法务复核",
+        "R06（review）：商业合作内容未标注「广告」"
+      ],
+      "rule_findings": [
+        "R04[block] caption",
+        "R05[review] caption",
+        "R06[review] ad_label"
+      ],
+      "suggested_channel": "douyin",
+      "suggested_slot": null,
+      "confirmation_status": "not_applicable",
+      "pending_items": [
+        "文案需删除极限用语并取消「100%见效」「根治」等功效宣称（法务复核）",
+        "需补充「广告」标识后重新送审",
+        "修改后需重新提交排期（本次未排期）"
+      ],
+      "draft_status": "not_saved"
+    },
+    {
+      "material_id": "M06",
+      "requested": {
+        "channel": "xiaohongshu",
+        "publish_at": "2026-11-07T12:00"
+      },
+      "review_status": "review",
+      "risk_reasons": [
+        "R07（review）：出镜人物肖像授权未回传"
+      ],
+      "rule_findings": [
+        "R07[review] portrait_release"
+      ],
+      "suggested_channel": "xiaohongshu",
+      "suggested_slot": "2026-11-07T12:00",
+      "confirmation_status": "pending",
+      "pending_items": [
+        "补传出镜人物肖像授权凭证，经人工/法务复核通过后方可发布"
+      ],
+      "draft_status": "saved"
+    }
+  ],
+  "summary": "REQ-07 处理完毕：M04（抖音 2026-11-07 20:00）审核为 block——文案含「最有效」「全网最」「100%」等广告法禁用极限用语，另有效功效宣称与未标「广告」的问题，故不放入草稿，建议修改文案并补「广告」标识后重新送审。M06（小红书 2026-11-07 12:00）审核为 review——肖像授权未回传，时段经查询为空闲，已保存为排期草稿（草稿号 D-DD1748B1，修订 1，仅 1 条素材），状态 pending 等待人工复核；未发布，仅草稿。",
+  "stats": {
+    "model": "deepseek-flash",
+    "model_turns": 5,
+    "tool_calls": 7,
+    "finish_rejections": 0,
+    "limits": {
+      "max_turns": 15,
+      "max_tool_calls": 40,
+      "max_finish_rejections": 2
+    },
+    "elapsed_sec": 11.32,
+    "usage": {
+      "prompt_tokens": 15728,
+      "completion_tokens": 1541,
+      "total_tokens": 17269,
+      "prompt_cache_hit_tokens": 14336,
+      "prompt_cache_miss_tokens": 1392
+    }
+  }
+}

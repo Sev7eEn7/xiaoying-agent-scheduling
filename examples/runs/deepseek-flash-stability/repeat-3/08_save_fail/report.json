@@ -1,0 +1,56 @@
+{
+  "request_id": "REQ-08",
+  "request_key": "REQ-08",
+  "task_status": "save_failed",
+  "publish_status": "not_published",
+  "publish_note": "本 Agent 只保存排期草稿，不调用任何发布接口",
+  "draft": {
+    "status": "failed",
+    "draft_id": null,
+    "attempts": 3,
+    "errors": [
+      "STORAGE_UNAVAILABLE",
+      "STORAGE_UNAVAILABLE",
+      "STORAGE_UNAVAILABLE"
+    ]
+  },
+  "items": [
+    {
+      "material_id": "M02",
+      "requested": {
+        "channel": "xiaohongshu",
+        "publish_at": "2026-11-08T12:00"
+      },
+      "review_status": "pass",
+      "risk_reasons": [],
+      "rule_findings": [],
+      "suggested_channel": "xiaohongshu",
+      "suggested_slot": "2026-11-08T12:00",
+      "confirmation_status": "not_required",
+      "pending_items": [
+        "草稿保存失败：草稿存储服务不可用（STORAGE_UNAVAILABLE），已重试 2 次仍失败，需存储恢复后重新保存该条排期"
+      ],
+      "draft_status": "save_failed"
+    }
+  ],
+  "summary": "M02「秋季通勤三套穿搭」按 2026-11-08 12:00 审核结果为 pass（无 findings，原创版权、无音乐、有肖像授权、非商业、无广告标），小红书该时段查询为 free，时段与用户要求一致，无需任何改动，审核与排期规划均无待确认项。但【排期草稿未能保存】：save_schedule_draft 连续三次返回 STORAGE_UNAVAILABLE（可重试类错误，已用满 2 次重试），存储服务不可用、未写入任何数据，因此本素材当前不在草稿中。请在存储服务恢复后重新提交同一排期保存（内容相同则幂等返回 duplicate）。本环节无发布能力，未做任何发布操作。",
+  "stats": {
+    "model": "deepseek-flash",
+    "model_turns": 6,
+    "tool_calls": 7,
+    "finish_rejections": 0,
+    "limits": {
+      "max_turns": 15,
+      "max_tool_calls": 40,
+      "max_finish_rejections": 2
+    },
+    "elapsed_sec": 12.03,
+    "usage": {
+      "prompt_tokens": 17509,
+      "completion_tokens": 1443,
+      "total_tokens": 18952,
+      "prompt_cache_hit_tokens": 16384,
+      "prompt_cache_miss_tokens": 1125
+    }
+  }
+}

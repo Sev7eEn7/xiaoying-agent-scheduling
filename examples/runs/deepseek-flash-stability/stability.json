@@ -1,0 +1,189 @@
+[
+  {
+    "id": "01_normal",
+    "title": "正常排期",
+    "runs": 3,
+    "passed": 3,
+    "turns": [
+      5,
+      5,
+      4
+    ],
+    "tools": [
+      8,
+      8,
+      8
+    ],
+    "failed_checks": []
+  },
+  {
+    "id": "02_conflict",
+    "title": "时段冲突（参考实例）",
+    "runs": 3,
+    "passed": 3,
+    "turns": [
+      5,
+      6,
+      5
+    ],
+    "tools": [
+      6,
+      6,
+      7
+    ],
+    "failed_checks": []
+  },
+  {
+    "id": "03_duplicate",
+    "title": "重复提交同一请求",
+    "runs": 3,
+    "passed": 3,
+    "turns": [
+      6,
+      5,
+      7
+    ],
+    "tools": [
+      6,
+      7,
+      7
+    ],
+    "failed_checks": []
+  },
+  {
+    "id": "04_confirm",
+    "title": "用户确认后再次提交",
+    "runs": 3,
+    "passed": 3,
+    "turns": [
+      5,
+      5,
+      5
+    ],
+    "tools": [
+      7,
+      6,
+      7
+    ],
+    "failed_checks": []
+  },
+  {
+    "id": "05_swap_resubmit",
+    "title": "更换占用时段后重复提交",
+    "runs": 3,
+    "passed": 3,
+    "turns": [
+      5,
+      5,
+      4
+    ],
+    "tools": [
+      5,
+      5,
+      5
+    ],
+    "failed_checks": []
+  },
+  {
+    "id": "06_missing_info",
+    "title": "素材信息缺失",
+    "runs": 3,
+    "passed": 3,
+    "turns": [
+      8,
+      6,
+      7
+    ],
+    "tools": [
+      14,
+      13,
+      15
+    ],
+    "failed_checks": []
+  },
+  {
+    "id": "07_rule_risk",
+    "title": "规则风险：阻断与人工复核",
+    "runs": 3,
+    "passed": 3,
+    "turns": [
+      5,
+      5,
+      5
+    ],
+    "tools": [
+      7,
+      7,
+      7
+    ],
+    "failed_checks": []
+  },
+  {
+    "id": "08_save_fail",
+    "title": "保存失败",
+    "runs": 3,
+    "passed": 3,
+    "turns": [
+      7,
+      7,
+      6
+    ],
+    "tools": [
+      7,
+      7,
+      7
+    ],
+    "failed_checks": []
+  },
+  {
+    "id": "09_batch_window",
+    "title": "同批次冲突 + 用户允许窗口",
+    "runs": 3,
+    "passed": 3,
+    "turns": [
+      6,
+      6,
+      5
+    ],
+    "tools": [
+      9,
+      9,
+      8
+    ],
+    "failed_checks": []
+  },
+  {
+    "id": "10_step_limit",
+    "title": "达到步数上限",
+    "runs": 3,
+    "passed": 3,
+    "turns": [
+      3,
+      3,
+      3
+    ],
+    "tools": [
+      8,
+      7,
+      9
+    ],
+    "failed_checks": []
+  },
+  {
+    "id": "11_tool_retry",
+    "title": "工具首次失败后重试",
+    "runs": 3,
+    "passed": 3,
+    "turns": [
+      5,
+      6,
+      6
+    ],
+    "tools": [
+      6,
+      6,
+      6
+    ],
+    "failed_checks": []
+  }
+]

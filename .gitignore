@@ -1,0 +1,11 @@
+.env
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.runtime/
+*.egg-info/
+.DS_Store
+
+# 考题原文不随仓库公开（需求见 docs/01-requirements.md）
+题目.md

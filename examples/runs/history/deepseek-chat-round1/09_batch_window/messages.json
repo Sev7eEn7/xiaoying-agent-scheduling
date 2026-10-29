@@ -1,0 +1,145 @@
+[
+  {
+    "role": "system",
+    "content": "你是内容团队的「素材审核与发布排期」助手。目标：对请求中的每个素材给出审核结论、风险原因、建议时段和待确认项，并把可以排期的素材保存为一份【排期草稿】。\n\n## 硬性边界\n1. 你没有发布能力，只能保存草稿。任何输出都不得声称“已发布”“已上线”“发布成功”。\n2. 用户给出的渠道和发布时间是硬性要求。需要改动时只能作为建议：confirmation_status=pending，并在 pending_items 写明待确认内容。只有新时段落在该素材的 acceptable_window 内，或请求的 confirmations 中用户已批准该时段时，才可以是 not_required / confirmed。\n3. 审核结论以 check_rules 的结果为依据：\n   - block：阻断，不得放入草稿，说明风险原因；\n   - review：可以放入草稿，但必须 pending 等待人工复核；\n   - incomplete：先判断能否补查（例如版权信息缺失可以用 lookup_license 查询版权登记库，查到后要重新 check_rules）；补查无果则 needs_info，不放入草稿，并列出需要补充的信息。\n4. 请求缺少发布时间等关键信息时不要自行编造，把它列为待确认项。\n5. 同一批次的多个素材不能占用同一渠道的同一时段。query_slots 可以通过 also_taken 传入你已规划的时段。\n6. 时段以整点为单位，08:00–23:00 可发。需要替代时段时，默认选择不早于原要求的最近空闲时段（素材可能尚未就绪），除非用户允许的窗口另有更合适的选择。\n7. 把所有可排期素材合并为一次 save_schedule_draft。保存是幂等的：同一请求再次保存返回 duplicate（内容相同）或 updated（同一份草稿的新修订），都不会产生第二份草稿。\n8. 工具返回 ok=false 时，读 error：retryable=true 可以重试（同一工具最多再试 2 次）；仍失败就如实报告，绝不能声称已保存。保存校验失败（VALIDATION_FAILED）时按 issues 调整后再保存。\n9. 每次调用工具都要在 reason 中用一句话写明这一步的依据（基于已经观察到的结果）。\n10. 全部处理完后调用 finish。finish 会与工具记录核对，被拒绝时按 issues 修正后再次提交。"
+  },
+  {
+    "role": "user",
+    "content": "今天是 2026-10-29。请处理下面的排期请求（JSON）：\n```json\n{\n  \"request_id\": \"REQ-09\",\n  \"items\": [\n    {\n      \"material_id\": \"M09\",\n      \"channel\": \"douyin\",\n      \"publish_at\": \"2026-11-05T20:00\"\n    },\n    {\n      \"material_id\": \"M10\",\n      \"channel\": \"douyin\",\n      \"publish_at\": \"2026-11-05T20:00\",\n      \"acceptable_window\": {\n        \"start\": \"2026-11-05T18:00\",\n        \"end\": \"2026-11-05T22:00\"\n      }\n    }\n  ]\n}\n```"
+  },
+  {
+    "role": "assistant",
+    "content": "我先读取两个素材的元数据。",
+    "tool_calls": [
+      {
+        "id": "call_00_t0uO8OQWzeS0tE9z9xI96478",
+        "type": "function",
+        "function": {
+          "name": "get_material",
+          "arguments": "{\"material_id\": \"M09\", \"reason\": \"请求要求为 M09 排期，先读取素材元数据以确认基本信息。\"}"
+        }
+      },
+      {
+        "id": "call_01_xpBQZHfFkp5TeaU4Lxol3338",
+        "type": "function",
+        "function": {
+          "name": "get_material",
+          "arguments": "{\"material_id\": \"M10\", \"reason\": \"请求要求为 M10 排期，先读取素材元数据以确认基本信息。\"}"
+        }
+      }
+    ]
+  },
+  {
+    "role": "tool",
+    "tool_call_id": "call_00_t0uO8OQWzeS0tE9z9xI96478",
+    "content": "{\"ok\": true, \"found\": true, \"material\": {\"id\": \"M09\", \"title\": \"桌面收纳改造\", \"type\": \"video\", \"category\": \"家居\", \"owner\": \"内容组C\", \"caption\": \"两百元预算完成的桌面收纳改造记录。\", \"license\": {\"type\": \"original\", \"holder\": \"内容组C\", \"expires_at\": null}, \"music\": {\"used\": true, \"license_id\": \"MUS-3302\", \"expires_at\": \"2027-09-30\"}, \"has_person\": false, \"portrait_release\": null, \"is_commercial\": false, \"ad_label\": false}}"
+  },
+  {
+    "role": "tool",
+    "tool_call_id": "call_01_xpBQZHfFkp5TeaU4Lxol3338",
+    "content": "{\"ok\": true, \"found\": true, \"material\": {\"id\": \"M10\", \"title\": \"城市夜跑路线推荐\", \"type\": \"video\", \"category\": \"运动\", \"owner\": \"内容组C\", \"caption\": \"三条适合下班后夜跑的城市路线。\", \"license\": {\"type\": \"original\", \"holder\": \"内容组C\", \"expires_at\": null}, \"music\": {\"used\": true, \"license_id\": \"MUS-3307\", \"expires_at\": \"2027-09-30\"}, \"has_person\": true, \"portrait_release\": true, \"is_commercial\": false, \"ad_label\": false}}"
+  },
+  {
+    "role": "assistant",
+    "content": "两个素材元数据完整，接下来按请求时段做审核检查。",
+    "tool_calls": [
+      {
+        "id": "call_00_1g4hVgehKxD2dmUC0Wg33632",
+        "type": "function",
+        "function": {
+          "name": "check_rules",
+          "arguments": "{\"material_id\": \"M09\", \"publish_at\": \"2026-11-05T20:00\", \"reason\": \"M09 元数据完整，按请求时段 2026-11-05T20:00 执行审核规则检查。\"}"
+        }
+      },
+      {
+        "id": "call_01_GzbuzX0MQUYZYSwLZqYH4614",
+        "type": "function",
+        "function": {
+          "name": "check_rules",
+          "arguments": "{\"material_id\": \"M10\", \"publish_at\": \"2026-11-05T20:00\", \"reason\": \"M10 元数据完整，按请求时段 2026-11-05T20:00 执行审核规则检查。\"}"
+        }
+      }
+    ]
+  },
+  {
+    "role": "tool",
+    "tool_call_id": "call_00_1g4hVgehKxD2dmUC0Wg33632",
+    "content": "{\"ok\": true, \"material_id\": \"M09\", \"rules_version\": \"2026-10-28\", \"publish_date\": \"2026-11-05\", \"result\": \"pass\", \"findings\": [], \"license_source\": \"metadata\"}"
+  },
+  {
+    "role": "tool",
+    "tool_call_id": "call_01_GzbuzX0MQUYZYSwLZqYH4614",
+    "content": "{\"ok\": true, \"material_id\": \"M10\", \"rules_version\": \"2026-10-28\", \"publish_date\": \"2026-11-05\", \"result\": \"pass\", \"findings\": [], \"license_source\": \"metadata\"}"
+  },
+  {
+    "role": "assistant",
+    "content": "两个素材均通过审核，但请求中两者都要求 douyin 2026-11-05T20:00，存在同渠道同时段冲突。先查询该时段可用性。",
+    "tool_calls": [
+      {
+        "id": "call_00_uckPjk1P70oeJ1ywy5T95106",
+        "type": "function",
+        "function": {
+          "name": "query_slots",
+          "arguments": "{\"channel\": \"douyin\", \"publish_at\": \"2026-11-05T20:00\", \"reason\": \"M09 与 M10 均要求 douyin 2026-11-05T20:00，需确认该时段是否可用及备选时段。\"}"
+        }
+      }
+    ]
+  },
+  {
+    "role": "tool",
+    "tool_call_id": "call_00_uckPjk1P70oeJ1ywy5T95106",
+    "content": "{\"ok\": true, \"channel\": \"douyin\", \"requested\": {\"slot\": \"2026-11-05T20:00\", \"status\": \"free\"}}"
+  },
+  {
+    "role": "assistant",
+    "content": "20:00 空闲。按请求顺序把 20:00 分配给 M09，再为 M10 查询备选时段（把 M09 的 20:00 作为 also_taken）。",
+    "tool_calls": [
+      {
+        "id": "call_00_7La8j1dwE57j8rhaIiJj9949",
+        "type": "function",
+        "function": {
+          "name": "query_slots",
+          "arguments": "{\"channel\": \"douyin\", \"publish_at\": \"2026-11-05T20:00\", \"also_taken\": [{\"channel\": \"douyin\", \"slot\": \"2026-11-05T20:00\"}], \"reason\": \"20:00 已规划给 M09，需为 M10 查询同渠道其他可用时段（M10 允许窗口 18:00–22:00）。\"}"
+        }
+      }
+    ]
+  },
+  {
+    "role": "tool",
+    "tool_call_id": "call_00_7La8j1dwE57j8rhaIiJj9949",
+    "content": "{\"ok\": true, \"channel\": \"douyin\", \"requested\": {\"slot\": \"2026-11-05T20:00\", \"status\": \"planned_in_batch\", \"detail\": \"本批次已规划给其他素材\"}, \"alternatives\": [{\"slot\": \"2026-11-05T21:00\", \"offset_minutes\": 60}, {\"slot\": \"2026-11-05T22:00\", \"offset_minutes\": 120}, {\"slot\": \"2026-11-05T18:00\", \"offset_minutes\": -120}, {\"slot\": \"2026-11-05T23:00\", \"offset_minutes\": 180}]}"
+  },
+  {
+    "role": "assistant",
+    "content": "M10 的备选 21:00 落在其允许窗口 18:00–22:00 内，符合规则 6 的默认选择（不早于原要求的最近空闲时段）。保存草稿。",
+    "tool_calls": [
+      {
+        "id": "call_00_H7LW1l7BH9qj9Yj0bZ5b6431",
+        "type": "function",
+        "function": {
+          "name": "save_schedule_draft",
+          "arguments": "{\"items\": [{\"material_id\": \"M09\", \"channel\": \"douyin\", \"slot\": \"2026-11-05T20:00\", \"confirmation_status\": \"not_required\"}, {\"material_id\": \"M10\", \"channel\": \"douyin\", \"slot\": \"2026-11-05T21:00\", \"confirmation_status\": \"not_required\", \"note\": \"原请求 20:00 与 M09 冲突，改到 21:00，落在其允许窗口 18:00–22:00 内\"}], \"reason\": \"两素材均审核通过；M09 按请求 20:00，M10 因同渠道同时段冲突改到允许窗口内的 21:00，保存为草稿。\"}"
+        }
+      }
+    ]
+  },
+  {
+    "role": "tool",
+    "tool_call_id": "call_00_H7LW1l7BH9qj9Yj0bZ5b6431",
+    "content": "{\"ok\": true, \"saved\": true, \"status\": \"created\", \"draft_id\": \"D-E0F7B21A\", \"revision\": 1, \"content_hash\": \"42c4d73d7df859cb\", \"state\": \"draft\", \"items_saved\": 2, \"note\": \"仅保存为排期草稿，未发布；duplicate 表示同一请求已存在相同草稿，未重复创建\"}"
+  },
+  {
+    "role": "assistant",
+    "content": "草稿已保存（D-E0F7B21A，仅草稿未发布）。提交最终结果。",
+    "tool_calls": [
+      {
+        "id": "call_00_jBN14A8eDOAjq8Z7hfJb1686",
+        "type": "function",
+        "function": {
+          "name": "finish",
+          "arguments": "{\"items\": [{\"material_id\": \"M09\", \"review_status\": \"pass\", \"risk_reasons\": [], \"suggested_channel\": \"douyin\", \"suggested_slot\": \"2026-11-05T20:00\", \"confirmation_status\": \"not_required\", \"pending_items\": [], \"in_draft\": true}, {\"material_id\": \"M10\", \"review_status\": \"pass\", \"risk_reasons\": [\"原请求 douyin 2026-11-05T20:00 与 M09 同渠道同时段冲突，已改到允许窗口 18:00–22:00 内的 21:00\"], \"suggested_channel\": \"douyin\", \"suggested_slot\": \"2026-11-05T21:00\", \"confirmation_status\": \"not_required\", \"pending_items\": [\"M10 时段由 20:00 调整为 21:00（落在其 acceptable_window 内），如需保留 20:00 请调整 M09 或另行指定\"], \"in_draft\": true}], \"summary\": \"M09、M10 均通过审核（pass）。两者原请求同为 douyin 2026-11-05T20:00，存在同渠道同时段冲突：M09 保留 20:00，M10 调整到其允许窗口 18:00–22:00 内的 21:00。已合并保存为排期草稿 D-E0F7B21A（revision 1），仅为草稿，未发布。\"}"
+        }
+      }
+    ]
+  }
+]

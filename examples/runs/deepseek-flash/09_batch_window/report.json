@@ -1,0 +1,70 @@
+{
+  "request_id": "REQ-09",
+  "request_key": "REQ-09",
+  "task_status": "completed",
+  "publish_status": "not_published",
+  "publish_note": "本 Agent 只保存排期草稿，不调用任何发布接口",
+  "draft": {
+    "status": "created",
+    "draft_id": "D-E0F7B21A",
+    "revision": 1,
+    "attempts": 1,
+    "state": "draft"
+  },
+  "items": [
+    {
+      "material_id": "M09",
+      "requested": {
+        "channel": "douyin",
+        "publish_at": "2026-11-05T20:00"
+      },
+      "review_status": "pass",
+      "risk_reasons": [],
+      "rule_findings": [],
+      "suggested_channel": "douyin",
+      "suggested_slot": "2026-11-05T20:00",
+      "confirmation_status": "not_required",
+      "pending_items": [],
+      "draft_status": "saved"
+    },
+    {
+      "material_id": "M10",
+      "requested": {
+        "channel": "douyin",
+        "publish_at": "2026-11-05T20:00",
+        "acceptable_window": {
+          "start": "2026-11-05T18:00",
+          "end": "2026-11-05T22:00"
+        }
+      },
+      "review_status": "pass",
+      "risk_reasons": [],
+      "rule_findings": [],
+      "suggested_channel": "douyin",
+      "suggested_slot": "2026-11-05T21:00",
+      "confirmation_status": "not_required",
+      "pending_items": [],
+      "draft_status": "saved"
+    }
+  ],
+  "summary": "M09、M10 均通过审核（check_rules=pass，无 findings；原创、音乐授权至 2027-09-30、人物肖像授权齐备）。两素材原要求同为抖音 2026-11-05T20:00，冲突处理：保留无窗口的 M09 原时段 20:00，把有 18:00–22:00 窗口的 M10 调整到最近的空闲整点 21:00（在窗口内，故无需确认）。已合并保存为一份排期草稿 D-E0F7B21A（revision 1，仅草稿，未发布）。",
+  "stats": {
+    "model": "deepseek-flash",
+    "model_turns": 7,
+    "tool_calls": 9,
+    "finish_rejections": 0,
+    "limits": {
+      "max_turns": 15,
+      "max_tool_calls": 40,
+      "max_finish_rejections": 2
+    },
+    "elapsed_sec": 14.6,
+    "usage": {
+      "prompt_tokens": 24286,
+      "completion_tokens": 2139,
+      "total_tokens": 26425,
+      "prompt_cache_hit_tokens": 22528,
+      "prompt_cache_miss_tokens": 1758
+    }
+  }
+}

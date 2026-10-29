@@ -1,0 +1,32 @@
+{
+  "drafts": {
+    "D-DD1748B1": {
+      "draft_id": "D-DD1748B1",
+      "request_key": "REQ-07",
+      "state": "draft",
+      "revision": 1,
+      "content_hash": "80711749474fe293",
+      "items": [
+        {
+          "material_id": "M06",
+          "channel": "xiaohongshu",
+          "slot": "2026-11-07T12:00",
+          "requested_channel": "xiaohongshu",
+          "requested_slot": "2026-11-07T12:00",
+          "review_result": "review",
+          "confirmation_status": "pending",
+          "note": "审核结果为 review：R07 出镜人物肖像授权未回传，需人工复核并补齐肖像授权；时段与用户要求一致，未改动"
+        }
+      ],
+      "created_at": "2026-10-29T15:33:37",
+      "updated_at": "2026-10-29T15:33:37",
+      "history": [
+        {
+          "revision": 1,
+          "content_hash": "80711749474fe293",
+          "at": "2026-10-29T15:33:37"
+        }
+      ]
+    }
+  }
+}

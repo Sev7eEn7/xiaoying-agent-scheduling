@@ -1,0 +1,174 @@
+[
+  {
+    "id": "01_normal",
+    "title": "正常排期",
+    "covers": [
+      "正常排期"
+    ],
+    "model": "mock-rule-policy",
+    "task_status": "completed",
+    "model_turns": 8,
+    "tool_calls": 8,
+    "finish_rejections": 0,
+    "checks_passed": 13,
+    "checks_total": 13,
+    "failed_checks": []
+  },
+  {
+    "id": "02_conflict",
+    "title": "时段冲突（参考实例）",
+    "covers": [
+      "时段冲突",
+      "确认边界"
+    ],
+    "model": "mock-rule-policy",
+    "task_status": "needs_confirmation",
+    "model_turns": 5,
+    "tool_calls": 5,
+    "finish_rejections": 0,
+    "checks_passed": 11,
+    "checks_total": 11,
+    "failed_checks": []
+  },
+  {
+    "id": "03_duplicate",
+    "title": "重复提交同一请求",
+    "covers": [
+      "重复提交"
+    ],
+    "model": "mock-rule-policy",
+    "task_status": "needs_confirmation",
+    "model_turns": 5,
+    "tool_calls": 5,
+    "finish_rejections": 0,
+    "checks_passed": 9,
+    "checks_total": 9,
+    "failed_checks": []
+  },
+  {
+    "id": "04_confirm",
+    "title": "用户确认后再次提交",
+    "covers": [
+      "确认边界",
+      "重复提交"
+    ],
+    "model": "mock-rule-policy",
+    "task_status": "completed",
+    "model_turns": 5,
+    "tool_calls": 5,
+    "finish_rejections": 0,
+    "checks_passed": 9,
+    "checks_total": 9,
+    "failed_checks": []
+  },
+  {
+    "id": "05_swap_resubmit",
+    "title": "更换占用时段后重复提交",
+    "covers": [
+      "时段冲突",
+      "重复提交"
+    ],
+    "model": "mock-rule-policy",
+    "task_status": "completed",
+    "model_turns": 5,
+    "tool_calls": 5,
+    "finish_rejections": 0,
+    "checks_passed": 9,
+    "checks_total": 9,
+    "failed_checks": []
+  },
+  {
+    "id": "06_missing_info",
+    "title": "素材信息缺失",
+    "covers": [
+      "素材信息缺失",
+      "补查"
+    ],
+    "model": "mock-rule-policy",
+    "task_status": "needs_confirmation",
+    "model_turns": 12,
+    "tool_calls": 12,
+    "finish_rejections": 0,
+    "checks_passed": 15,
+    "checks_total": 15,
+    "failed_checks": []
+  },
+  {
+    "id": "07_rule_risk",
+    "title": "规则风险：阻断与人工复核",
+    "covers": [
+      "规则风险"
+    ],
+    "model": "mock-rule-policy",
+    "task_status": "needs_confirmation",
+    "model_turns": 7,
+    "tool_calls": 7,
+    "finish_rejections": 0,
+    "checks_passed": 10,
+    "checks_total": 10,
+    "failed_checks": []
+  },
+  {
+    "id": "08_save_fail",
+    "title": "保存失败",
+    "covers": [
+      "保存失败",
+      "工具失败"
+    ],
+    "model": "mock-rule-policy",
+    "task_status": "save_failed",
+    "model_turns": 7,
+    "tool_calls": 7,
+    "finish_rejections": 0,
+    "checks_passed": 7,
+    "checks_total": 7,
+    "failed_checks": []
+  },
+  {
+    "id": "09_batch_window",
+    "title": "同批次冲突 + 用户允许窗口",
+    "covers": [
+      "时段冲突",
+      "确认边界",
+      "正常排期"
+    ],
+    "model": "mock-rule-policy",
+    "task_status": "completed",
+    "model_turns": 8,
+    "tool_calls": 8,
+    "finish_rejections": 0,
+    "checks_passed": 10,
+    "checks_total": 10,
+    "failed_checks": []
+  },
+  {
+    "id": "10_step_limit",
+    "title": "达到步数上限",
+    "covers": [
+      "步数上限"
+    ],
+    "model": "mock-rule-policy",
+    "task_status": "incomplete",
+    "model_turns": 3,
+    "tool_calls": 3,
+    "finish_rejections": 0,
+    "checks_passed": 3,
+    "checks_total": 3,
+    "failed_checks": []
+  },
+  {
+    "id": "11_tool_retry",
+    "title": "工具首次失败后重试",
+    "covers": [
+      "工具失败"
+    ],
+    "model": "mock-rule-policy",
+    "task_status": "completed",
+    "model_turns": 6,
+    "tool_calls": 6,
+    "finish_rejections": 0,
+    "checks_passed": 7,
+    "checks_total": 7,
+    "failed_checks": []
+  }
+]

@@ -1,0 +1,56 @@
+{
+  "request_id": "REQ-08",
+  "request_key": "REQ-08",
+  "task_status": "save_failed",
+  "publish_status": "not_published",
+  "publish_note": "本 Agent 只保存排期草稿，不调用任何发布接口",
+  "draft": {
+    "status": "failed",
+    "draft_id": null,
+    "attempts": 3,
+    "errors": [
+      "STORAGE_UNAVAILABLE",
+      "STORAGE_UNAVAILABLE",
+      "STORAGE_UNAVAILABLE"
+    ]
+  },
+  "items": [
+    {
+      "material_id": "M02",
+      "requested": {
+        "channel": "xiaohongshu",
+        "publish_at": "2026-11-08T12:00"
+      },
+      "review_status": "pass",
+      "risk_reasons": [],
+      "rule_findings": [],
+      "suggested_channel": "xiaohongshu",
+      "suggested_slot": "2026-11-08T12:00",
+      "confirmation_status": "not_required",
+      "pending_items": [
+        "草稿保存失败（STORAGE_UNAVAILABLE，已重试 2 次仍不可用），需存储服务恢复后重新保存排期草稿"
+      ],
+      "draft_status": "save_failed"
+    }
+  ],
+  "summary": "M02《秋季通勤三套穿搭》审核通过（原创、有肖像授权、非商业、无音乐），小红书 2026-11-08 12:00 时段空闲，与请求一致无需确认。但草稿存储服务连续三次返回 STORAGE_UNAVAILABLE，本次未写入任何草稿，需待服务恢复后重新保存；未做任何发布操作。",
+  "stats": {
+    "model": "deepseek-chat",
+    "model_turns": 6,
+    "tool_calls": 7,
+    "finish_rejections": 0,
+    "limits": {
+      "max_turns": 15,
+      "max_tool_calls": 40,
+      "max_finish_rejections": 2
+    },
+    "elapsed_sec": 8.32,
+    "usage": {
+      "prompt_tokens": 16398,
+      "completion_tokens": 972,
+      "total_tokens": 17370,
+      "prompt_cache_hit_tokens": 14976,
+      "prompt_cache_miss_tokens": 1422
+    }
+  }
+}

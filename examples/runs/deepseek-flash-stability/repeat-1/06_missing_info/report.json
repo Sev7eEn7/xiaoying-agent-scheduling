@@ -1,0 +1,97 @@
+{
+  "request_id": "REQ-06",
+  "request_key": "REQ-06",
+  "task_status": "needs_confirmation",
+  "publish_status": "not_published",
+  "publish_note": "本 Agent 只保存排期草稿，不调用任何发布接口",
+  "draft": {
+    "status": "created",
+    "draft_id": "D-E1DC4F7C",
+    "revision": 1,
+    "attempts": 1,
+    "state": "draft"
+  },
+  "items": [
+    {
+      "material_id": "M03",
+      "requested": {
+        "channel": "douyin",
+        "publish_at": "2026-11-06T12:00"
+      },
+      "review_status": "pass",
+      "risk_reasons": [],
+      "rule_findings": [],
+      "suggested_channel": "douyin",
+      "suggested_slot": "2026-11-06T12:00",
+      "confirmation_status": "not_required",
+      "pending_items": [],
+      "draft_status": "saved"
+    },
+    {
+      "material_id": "M05",
+      "requested": {
+        "channel": "douyin",
+        "publish_at": "2026-11-06T15:00"
+      },
+      "review_status": "needs_info",
+      "risk_reasons": [
+        "缺少必填字段 owner（素材归属人）",
+        "缺少必填字段 license，版权登记库中未查到登记记录",
+        "使用了背景音乐但缺少音乐授权编号 music.license_id",
+        "出镜人物肖像授权 portrait_release 未提供，需人工复核"
+      ],
+      "rule_findings": [
+        "R01[missing] owner",
+        "R01[missing] license",
+        "R03[missing] music.license_id",
+        "R07[review] portrait_release"
+      ],
+      "suggested_channel": "douyin",
+      "suggested_slot": "2026-11-06T15:00",
+      "confirmation_status": "not_applicable",
+      "pending_items": [
+        "补充素材归属人 owner",
+        "补充版权授权信息或登记编号（版权登记库查无记录）",
+        "补充背景音乐授权编号 MUS-*",
+        "补交出镜人物肖像授权（portrait_release）"
+      ],
+      "draft_status": "not_saved"
+    },
+    {
+      "material_id": "M08",
+      "requested": {
+        "channel": "xiaohongshu"
+      },
+      "review_status": "pass",
+      "risk_reasons": [],
+      "rule_findings": [],
+      "suggested_channel": "xiaohongshu",
+      "suggested_slot": "2026-11-06T12:00",
+      "confirmation_status": "pending",
+      "pending_items": [
+        "请求未提供发布时间，需确认是否按建议时段 2026-11-06 12:00 在小红书发布"
+      ],
+      "draft_status": "saved"
+    }
+  ],
+  "summary": "已生成排期草稿 D-E1DC4F7C（rev 1，2 条，仅草稿未发布）。M03：首次检查缺 license 判 incomplete，查版权登记库得到 CR-5531（原创，持有人内容组C，有效期至 2027-06-30），重检 pass，按原要求抖音 2026-11-06 12:00 排入。M08：规则检查 pass，但请求未给发布时间，草稿暂按建议时段小红书 2026-11-06 12:00 占位（该时段空闲），状态 pending 待用户确认。M05：仍为资料缺失（缺 owner、缺版权授权且登记库无记录、背景音乐无授权编号、肖像授权未提供），补查无果，未纳入草稿；其原要求的抖音 2026-11-06 15:00 目前空闲，补齐资料后可沿用该时段。需注意：以上均为草稿，未发布上线。",
+  "stats": {
+    "model": "deepseek-flash",
+    "model_turns": 8,
+    "tool_calls": 14,
+    "finish_rejections": 0,
+    "limits": {
+      "max_turns": 15,
+      "max_tool_calls": 40,
+      "max_finish_rejections": 2
+    },
+    "elapsed_sec": 27.17,
+    "usage": {
+      "prompt_tokens": 35465,
+      "completion_tokens": 4264,
+      "total_tokens": 39729,
+      "prompt_cache_hit_tokens": 33280,
+      "prompt_cache_miss_tokens": 2185
+    }
+  }
+}

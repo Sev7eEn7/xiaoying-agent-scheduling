@@ -1,0 +1,51 @@
+{
+  "request_id": "REQ-11",
+  "request_key": "REQ-11",
+  "task_status": "completed",
+  "publish_status": "not_published",
+  "publish_note": "本 Agent 只保存排期草稿，不调用任何发布接口",
+  "draft": {
+    "status": "created",
+    "draft_id": "D-C3257BC0",
+    "revision": 1,
+    "attempts": 1,
+    "state": "draft"
+  },
+  "items": [
+    {
+      "material_id": "M07",
+      "requested": {
+        "channel": "douyin",
+        "publish_at": "2026-11-08T19:00"
+      },
+      "review_status": "pass",
+      "risk_reasons": [],
+      "rule_findings": [],
+      "suggested_channel": "douyin",
+      "suggested_slot": "2026-11-08T19:00",
+      "confirmation_status": "not_required",
+      "pending_items": [],
+      "draft_status": "saved"
+    }
+  ],
+  "summary": "M07《降噪耳机通勤一周体验》：原创素材（holder 内容组A，音乐授权 MUS-1188 至 2027-06-30），无人物出镜、非商业、无广告标识，check_rules 在 2026-11-08T19:00 结果为 pass，无风险项。douyin 2026-11-08T19:00 查询为空闲，与用户要求完全一致，无需确认，已保存为排期草稿 D-C3257BC0（revision 1，仅草稿、未发布）。本次无需人工复核或补充资料。",
+  "stats": {
+    "model": "deepseek-flash",
+    "model_turns": 5,
+    "tool_calls": 6,
+    "finish_rejections": 0,
+    "limits": {
+      "max_turns": 15,
+      "max_tool_calls": 40,
+      "max_finish_rejections": 2
+    },
+    "elapsed_sec": 7.57,
+    "usage": {
+      "prompt_tokens": 13910,
+      "completion_tokens": 888,
+      "total_tokens": 14798,
+      "prompt_cache_hit_tokens": 12800,
+      "prompt_cache_miss_tokens": 1110
+    }
+  }
+}

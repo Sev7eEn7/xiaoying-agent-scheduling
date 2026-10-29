@@ -1,0 +1,85 @@
+{
+  "request_id": "REQ-06",
+  "request_key": "REQ-06",
+  "task_status": "needs_confirmation",
+  "publish_status": "not_published",
+  "publish_note": "本 Agent 只保存排期草稿，不调用任何发布接口",
+  "draft": {
+    "status": "created",
+    "draft_id": "D-E1DC4F7C",
+    "revision": 1,
+    "attempts": 1,
+    "state": "draft"
+  },
+  "items": [
+    {
+      "material_id": "M03",
+      "requested": {
+        "channel": "douyin",
+        "publish_at": "2026-11-06T12:00"
+      },
+      "review_status": "pass",
+      "risk_reasons": [],
+      "rule_findings": [],
+      "suggested_channel": "douyin",
+      "suggested_slot": "2026-11-06T12:00",
+      "confirmation_status": "not_required",
+      "pending_items": [],
+      "draft_status": "saved"
+    },
+    {
+      "material_id": "M05",
+      "requested": {
+        "channel": "douyin",
+        "publish_at": "2026-11-06T15:00"
+      },
+      "review_status": "needs_info",
+      "risk_reasons": [],
+      "rule_findings": [
+        "R01[missing] owner",
+        "R01[missing] license",
+        "R03[missing] music.license_id",
+        "R07[review] portrait_release"
+      ],
+      "suggested_channel": null,
+      "suggested_slot": null,
+      "confirmation_status": "not_applicable",
+      "pending_items": [
+        "请补充：缺少必填字段 owner",
+        "请补充：缺少必填字段 license；可查询版权登记库补查",
+        "请补充：使用了背景音乐但缺少音乐授权编号"
+      ],
+      "draft_status": "not_saved"
+    },
+    {
+      "material_id": "M08",
+      "requested": {
+        "channel": "xiaohongshu"
+      },
+      "review_status": "needs_info",
+      "risk_reasons": [],
+      "rule_findings": [],
+      "suggested_channel": null,
+      "suggested_slot": null,
+      "confirmation_status": "not_applicable",
+      "pending_items": [
+        "请求缺少发布时间或渠道，请提供"
+      ],
+      "draft_status": "not_saved"
+    }
+  ],
+  "summary": "共 3 个素材，1 个已保存为草稿；未发布任何内容。",
+  "stats": {
+    "model": "mock-rule-policy",
+    "model_turns": 12,
+    "tool_calls": 12,
+    "finish_rejections": 0,
+    "limits": {
+      "max_turns": 15,
+      "max_tool_calls": 40,
+      "max_finish_rejections": 2
+    },
+    "elapsed_sec": 0.0,
+    "usage": {}
+  }
+}

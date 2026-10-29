@@ -1,0 +1,15 @@
+{
+  "request_id": "REQ-07",
+  "items": [
+    {
+      "material_id": "M04",
+      "channel": "douyin",
+      "publish_at": "2026-11-07T20:00"
+    },
+    {
+      "material_id": "M06",
+      "channel": "xiaohongshu",
+      "publish_at": "2026-11-07T12:00"
+    }
+  ]
+}

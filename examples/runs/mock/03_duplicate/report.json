@@ -1,0 +1,47 @@
+{
+  "request_id": "REQ-02",
+  "request_key": "REQ-02",
+  "task_status": "needs_confirmation",
+  "publish_status": "not_published",
+  "publish_note": "本 Agent 只保存排期草稿，不调用任何发布接口",
+  "draft": {
+    "status": "duplicate",
+    "draft_id": "D-763DEB3C",
+    "revision": 1,
+    "attempts": 1,
+    "state": "draft"
+  },
+  "items": [
+    {
+      "material_id": "M01",
+      "requested": {
+        "channel": "douyin",
+        "publish_at": "2026-11-03T18:00"
+      },
+      "review_status": "pass",
+      "risk_reasons": [],
+      "rule_findings": [],
+      "suggested_channel": "douyin",
+      "suggested_slot": "2026-11-03T19:00",
+      "confirmation_status": "pending",
+      "pending_items": [
+        "2026-11-03T18:00 不可用（已被排期 S-1001（M90 品牌直播预告）占用），建议改为 2026-11-03T19:00，需用户确认"
+      ],
+      "draft_status": "saved"
+    }
+  ],
+  "summary": "共 1 个素材，1 个已保存为草稿；未发布任何内容。",
+  "stats": {
+    "model": "mock-rule-policy",
+    "model_turns": 5,
+    "tool_calls": 5,
+    "finish_rejections": 0,
+    "limits": {
+      "max_turns": 15,
+      "max_tool_calls": 40,
+      "max_finish_rejections": 2
+    },
+    "elapsed_sec": 0.0,
+    "usage": {}
+  }
+}

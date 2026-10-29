@@ -1,0 +1,178 @@
+{
+  "_note": "场景按顺序执行；store 相同的场景共享同一个草稿存储（用于重复提交、确认、换占用后重提）。expect 中的列表表示允许值。",
+  "scenarios": [
+    {
+      "id": "01_normal",
+      "title": "正常排期",
+      "covers": ["正常排期"],
+      "input": "inputs/01_normal.json",
+      "store": "s01",
+      "expect": {
+        "task_status": "completed",
+        "draft_status": "created",
+        "items": {
+          "M02": {"review_status": "pass", "suggested_slot": "2026-11-04T12:00", "confirmation_status": "not_required", "draft_status": "saved"},
+          "M07": {"review_status": "pass", "suggested_slot": "2026-11-04T19:00", "confirmation_status": "not_required", "draft_status": "saved"}
+        },
+        "store_drafts": 1
+      }
+    },
+    {
+      "id": "02_conflict",
+      "title": "时段冲突（参考实例）",
+      "covers": ["时段冲突", "确认边界"],
+      "input": "inputs/02_conflict.json",
+      "store": "chainA",
+      "expect": {
+        "task_status": "needs_confirmation",
+        "draft_status": "created",
+        "items": {
+          "M01": {"review_status": "pass", "suggested_slot": "2026-11-03T19:00", "confirmation_status": "pending", "draft_status": "saved", "pending_items_nonempty": true}
+        },
+        "store_drafts": 1,
+        "store_revision": 1
+      }
+    },
+    {
+      "id": "03_duplicate",
+      "title": "重复提交同一请求",
+      "covers": ["重复提交"],
+      "input": "inputs/02_conflict.json",
+      "store": "chainA",
+      "expect": {
+        "task_status": "needs_confirmation",
+        "draft_status": "duplicate",
+        "items": {
+          "M01": {"suggested_slot": "2026-11-03T19:00", "confirmation_status": "pending", "draft_status": "saved"}
+        },
+        "store_drafts": 1,
+        "store_revision": 1
+      }
+    },
+    {
+      "id": "04_confirm",
+      "title": "用户确认后再次提交",
+      "covers": ["确认边界", "重复提交"],
+      "input": "inputs/04_confirm.json",
+      "store": "chainA",
+      "expect": {
+        "task_status": "completed",
+        "draft_status": "updated",
+        "items": {
+          "M01": {"suggested_slot": "2026-11-03T19:00", "confirmation_status": "confirmed", "draft_status": "saved"}
+        },
+        "store_drafts": 1,
+        "store_revision": 2
+      }
+    },
+    {
+      "id": "05_swap_resubmit",
+      "title": "更换占用时段后重复提交",
+      "covers": ["时段冲突", "重复提交"],
+      "input": "inputs/02_conflict.json",
+      "schedule": "data/schedule_variant.json",
+      "store": "chainA",
+      "expect": {
+        "task_status": "completed",
+        "draft_status": "updated",
+        "items": {
+          "M01": {"suggested_slot": "2026-11-03T18:00", "confirmation_status": "not_required", "draft_status": "saved"}
+        },
+        "store_drafts": 1,
+        "store_revision": 3
+      }
+    },
+    {
+      "id": "06_missing_info",
+      "title": "素材信息缺失",
+      "covers": ["素材信息缺失", "补查"],
+      "input": "inputs/06_missing_info.json",
+      "store": "s06",
+      "expect": {
+        "task_status": "needs_confirmation",
+        "items": {
+          "M03": {"review_status": "pass", "suggested_slot": "2026-11-06T12:00", "confirmation_status": "not_required", "draft_status": "saved"},
+          "M05": {"review_status": "needs_info", "draft_status": "not_saved", "pending_items_nonempty": true},
+          "M08": {"confirmation_status": ["pending", "not_applicable"], "pending_items_nonempty": true}
+        },
+        "store_excludes": ["M05"],
+        "trace_includes": [
+          {"tool": "lookup_license", "material_id": "M03"},
+          {"tool": "lookup_license", "material_id": "M05"}
+        ]
+      }
+    },
+    {
+      "id": "07_rule_risk",
+      "title": "规则风险：阻断与人工复核",
+      "covers": ["规则风险"],
+      "input": "inputs/07_rule_risk.json",
+      "store": "s07",
+      "expect": {
+        "task_status": "needs_confirmation",
+        "items": {
+          "M04": {"review_status": "blocked", "draft_status": "not_saved"},
+          "M06": {"review_status": "review", "confirmation_status": "pending", "draft_status": "saved", "pending_items_nonempty": true}
+        },
+        "store_excludes": ["M04"]
+      }
+    },
+    {
+      "id": "08_save_fail",
+      "title": "保存失败",
+      "covers": ["保存失败", "工具失败"],
+      "input": "inputs/08_save_fail.json",
+      "store": "s08",
+      "inject": ["save_fail"],
+      "expect": {
+        "task_status": "save_failed",
+        "draft_status": "failed",
+        "items": {
+          "M02": {"review_status": "pass", "draft_status": "save_failed"}
+        },
+        "store_drafts": 0
+      }
+    },
+    {
+      "id": "09_batch_window",
+      "title": "同批次冲突 + 用户允许窗口",
+      "covers": ["时段冲突", "确认边界", "正常排期"],
+      "input": "inputs/09_batch_window.json",
+      "store": "s09",
+      "expect": {
+        "task_status": "completed",
+        "items": {
+          "M09": {"suggested_slot": "2026-11-05T20:00", "confirmation_status": "not_required", "draft_status": "saved"},
+          "M10": {"suggested_slot": ["2026-11-05T18:00", "2026-11-05T21:00", "2026-11-05T22:00"], "confirmation_status": "not_required", "draft_status": "saved"}
+        },
+        "store_drafts": 1
+      }
+    },
+    {
+      "id": "10_step_limit",
+      "title": "达到步数上限",
+      "covers": ["步数上限"],
+      "input": "inputs/06_missing_info.json",
+      "store": "s10",
+      "limits": {"max_turns": 3},
+      "expect": {
+        "task_status": "incomplete"
+      }
+    },
+    {
+      "id": "11_tool_retry",
+      "title": "工具首次失败后重试",
+      "covers": ["工具失败"],
+      "input": "inputs/11_tool_retry.json",
+      "store": "s11",
+      "inject": ["slots_fail_once"],
+      "expect": {
+        "task_status": "completed",
+        "draft_status": "created",
+        "items": {
+          "M07": {"suggested_slot": "2026-11-08T19:00", "confirmation_status": "not_required", "draft_status": "saved"}
+        }
+      }
+    }
+  ]
+}

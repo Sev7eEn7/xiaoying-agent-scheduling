@@ -1,0 +1,132 @@
+[
+  {
+    "role": "system",
+    "content": "你是内容团队的「素材审核与发布排期」助手。目标：对请求中的每个素材给出审核结论、风险原因、建议时段和待确认项，并把可以排期的素材保存为一份【排期草稿】。\n\n## 硬性边界\n1. 你没有发布能力，只能保存草稿。任何输出都不得声称“已发布”“已上线”“发布成功”。\n2. 用户给出的渠道和发布时间是硬性要求。需要改动时只能作为建议：confirmation_status=pending，并在 pending_items 写明待确认内容。只有新时段落在该素材的 acceptable_window 内，或请求的 confirmations 中用户已批准该时段时，才可以是 not_required / confirmed。\n3. 审核结论以 check_rules 的结果为依据：\n   - block：阻断，不得放入草稿，说明风险原因；\n   - review：可以放入草稿，但必须 pending 等待人工复核；\n   - incomplete：先判断能否补查（例如版权信息缺失可以用 lookup_license 查询版权登记库，查到后要重新 check_rules）；补查无果则 needs_info，不放入草稿，并列出需要补充的信息。\n4. 请求缺少发布时间等关键信息时不要自行编造，把它列为待确认项。\n5. 同一批次的多个素材不能占用同一渠道的同一时段。query_slots 可以通过 also_taken 传入你已规划的时段。多个素材争同一时段时，尽量少改动用户的硬性要求：优先调整能在自己 acceptable_window 内解决的素材，保留没有窗口的素材的原时段，使需要用户确认的改动最少。\n6. 时段以整点为单位，08:00–23:00 可发。需要替代时段时，默认选择不早于原要求的最近空闲时段（素材可能尚未就绪），除非用户允许的窗口另有更合适的选择。\n7. 把所有可排期素材合并为一次 save_schedule_draft。保存是幂等的：同一请求再次保存返回 duplicate（内容相同）或 updated（同一份草稿的新修订），都不会产生第二份草稿。\n8. 工具返回 ok=false 时，读 error：retryable=true 可以重试（同一工具最多再试 2 次）；仍失败就如实报告，绝不能声称已保存。保存校验失败（VALIDATION_FAILED）时按 issues 调整后再保存。\n9. 每次调用工具都要在 reason 中用一句话写明这一步的依据（基于已经观察到的结果）。\n10. 全部处理完后调用 finish。finish 会与工具记录核对，被拒绝时按 issues 修正后再次提交。"
+  },
+  {
+    "role": "user",
+    "content": "今天是 2026-10-29。请处理下面的排期请求（JSON）：\n```json\n{\n  \"request_id\": \"REQ-02\",\n  \"items\": [\n    {\n      \"material_id\": \"M01\",\n      \"channel\": \"douyin\",\n      \"publish_at\": \"2026-11-03T18:00\"\n    }\n  ]\n}\n```"
+  },
+  {
+    "role": "assistant",
+    "content": "I'll start by reading the material metadata.",
+    "tool_calls": [
+      {
+        "id": "call_00_ET_GsDClGfiqY81vFLjxcq45674",
+        "type": "function",
+        "function": {
+          "name": "get_material",
+          "arguments": "{\"material_id\": \"M01\", \"reason\": \"请求需要为 M01 排期，先读取素材元数据以确认基本信息。\"}"
+        }
+      }
+    ]
+  },
+  {
+    "role": "tool",
+    "tool_call_id": "call_00_ET_GsDClGfiqY81vFLjxcq45674",
+    "content": "{\"ok\": true, \"found\": true, \"material\": {\"id\": \"M01\", \"title\": \"磁吸手机壳开箱\", \"type\": \"video\", \"category\": \"3C配件\", \"owner\": \"内容组A\", \"caption\": \"磁吸手机壳开箱：做工、手感和兼容机型一次看完。\", \"license\": {\"type\": \"original\", \"holder\": \"内容组A\", \"expires_at\": null}, \"music\": {\"used\": true, \"license_id\": \"MUS-1031\", \"expires_at\": \"2027-12-31\"}, \"has_person\": false, \"portrait_release\": null, \"is_commercial\": false, \"ad_label\": false}}"
+  },
+  {
+    "role": "assistant",
+    "content": "素材存在。现在按要求的时段运行审核。",
+    "tool_calls": [
+      {
+        "id": "call_00_XTfZCZ7CfwwACvT0AGJR2709",
+        "type": "function",
+        "function": {
+          "name": "check_rules",
+          "arguments": "{\"material_id\": \"M01\", \"publish_at\": \"2026-11-03T18:00\", \"reason\": \"基于素材元数据（原创、音乐授权至 2027-12-31、无人物出镜），按用户要求的 2026-11-03T18:00 进行审核规则检查。\"}"
+        }
+      },
+      {
+        "id": "call_01_7k4D86Idj5Z8G27vATQ15016",
+        "type": "function",
+        "function": {
+          "name": "query_slots",
+          "arguments": "{\"channel\": \"douyin\", \"publish_at\": \"2026-11-03T18:00\", \"reason\": \"确认用户硬性要求的抖音 2026-11-03T18:00 时段是否可用。\"}"
+        }
+      }
+    ]
+  },
+  {
+    "role": "tool",
+    "tool_call_id": "call_00_XTfZCZ7CfwwACvT0AGJR2709",
+    "content": "{\"ok\": true, \"material_id\": \"M01\", \"rules_version\": \"2026-10-28\", \"publish_date\": \"2026-11-03\", \"result\": \"pass\", \"findings\": [], \"license_source\": \"metadata\"}"
+  },
+  {
+    "role": "tool",
+    "tool_call_id": "call_01_7k4D86Idj5Z8G27vATQ15016",
+    "content": "{\"ok\": true, \"channel\": \"douyin\", \"requested\": {\"slot\": \"2026-11-03T18:00\", \"status\": \"occupied\", \"detail\": \"已被排期 S-1001（M90 品牌直播预告）占用\"}, \"alternatives\": [{\"slot\": \"2026-11-03T19:00\", \"offset_minutes\": 60}, {\"slot\": \"2026-11-03T16:00\", \"offset_minutes\": -120}, {\"slot\": \"2026-11-03T21:00\", \"offset_minutes\": 180}, {\"slot\": \"2026-11-03T15:00\", \"offset_minutes\": -180}]}"
+  },
+  {
+    "role": "assistant",
+    "content": "18:00 已被另一条排期占用。建议改为最近更晚的空闲整点，即 19:00，并进行核验。",
+    "tool_calls": [
+      {
+        "id": "call_00_fshc1E7aJ8eGtFdMcXcH1148",
+        "type": "function",
+        "function": {
+          "name": "query_slots",
+          "arguments": "{\"channel\": \"douyin\", \"publish_at\": \"2026-11-03T19:00\", \"reason\": \"原要求的 18:00 已被 S-1001 占用，按默认规则选择不早于原要求的最近空闲时段 19:00 进行核实。\"}"
+        }
+      }
+    ]
+  },
+  {
+    "role": "tool",
+    "tool_call_id": "call_00_fshc1E7aJ8eGtFdMcXcH1148",
+    "content": "{\"ok\": true, \"channel\": \"douyin\", \"requested\": {\"slot\": \"2026-11-03T19:00\", \"status\": \"free\"}}"
+  },
+  {
+    "role": "assistant",
+    "content": "19:00 空闲。为确保审核结果与该时段对应，重新运行审核规则检查。",
+    "tool_calls": [
+      {
+        "id": "call_00_N1zacUJ9oPzeQAViX5Ki7538",
+        "type": "function",
+        "function": {
+          "name": "check_rules",
+          "arguments": "{\"material_id\": \"M01\", \"publish_at\": \"2026-11-03T19:00\", \"reason\": \"拟调整到 19:00，重新按新时段检查授权有效期与合规规则。\"}"
+        }
+      }
+    ]
+  },
+  {
+    "role": "tool",
+    "tool_call_id": "call_00_N1zacUJ9oPzeQAViX5Ki7538",
+    "content": "{\"ok\": true, \"material_id\": \"M01\", \"rules_version\": \"2026-10-28\", \"publish_date\": \"2026-11-03\", \"result\": \"pass\", \"findings\": [], \"license_source\": \"metadata\"}"
+  },
+  {
+    "role": "assistant",
+    "content": "",
+    "tool_calls": [
+      {
+        "id": "call_00_ET_It2PgxylqvlfS7A7ovgM7718",
+        "type": "function",
+        "function": {
+          "name": "save_schedule_draft",
+          "arguments": "{\"items\": [{\"material_id\": \"M01\", \"channel\": \"douyin\", \"slot\": \"2026-11-03T19:00\", \"confirmation_status\": \"pending\", \"note\": \"原要求 2026-11-03T18:00 已被排期 S-1001（M90 品牌直播预告）占用，建议顺延至同日 19:00，待确认\"}], \"reason\": \"M01 审核为 pass，原 18:00 被占用、19:00 空闲，故以 pending 状态保存草稿等待确认时段变更。\"}"
+        }
+      }
+    ]
+  },
+  {
+    "role": "tool",
+    "tool_call_id": "call_00_ET_It2PgxylqvlfS7A7ovgM7718",
+    "content": "{\"ok\": true, \"saved\": true, \"status\": \"created\", \"draft_id\": \"D-763DEB3C\", \"revision\": 1, \"content_hash\": \"98cc8585628b12d6\", \"state\": \"draft\", \"items_saved\": 1, \"note\": \"仅保存为排期草稿，未发布；duplicate 表示同一请求已存在相同草稿，未重复创建\"}"
+  },
+  {
+    "role": "assistant",
+    "content": "",
+    "tool_calls": [
+      {
+        "id": "call_00_ET_UWIzWLWUhgHW3WkEU1bo1021",
+        "type": "function",
+        "function": {
+          "name": "finish",
+          "arguments": "{\"items\": [{\"material_id\": \"M01\", \"review_status\": \"pass\", \"risk_reasons\": [], \"suggested_channel\": \"douyin\", \"suggested_slot\": \"2026-11-03T19:00\", \"confirmation_status\": \"pending\", \"pending_items\": [\"原定 2026-11-03T18:00 已被既有排期 S-1001（M90 品牌直播预告）占用，是否接受顺延至同日 19:00（若坚持 18:00 需先协调原排期）\"], \"in_draft\": true}], \"summary\": \"M01（磁吸手机壳开箱）审核通过：原创、音乐授权有效期至 2027-12-31、无人物出镜、非商业推广，无风险项。但用户硬性要求的抖音 2026-11-03T18:00 已被既有排期 S-1001（M90 品牌直播预告）占用，故建议顺延至同日最近空闲整点 19:00，并以 pending 状态保存为排期草稿 D-763DEB3C（revision 1），等待确认；未发布任何内容。\"}"
+        }
+      }
+    ]
+  }
+]

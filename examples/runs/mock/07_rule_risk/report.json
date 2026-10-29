@@ -1,0 +1,74 @@
+{
+  "request_id": "REQ-07",
+  "request_key": "REQ-07",
+  "task_status": "needs_confirmation",
+  "publish_status": "not_published",
+  "publish_note": "本 Agent 只保存排期草稿，不调用任何发布接口",
+  "draft": {
+    "status": "created",
+    "draft_id": "D-DD1748B1",
+    "revision": 1,
+    "attempts": 1,
+    "state": "draft"
+  },
+  "items": [
+    {
+      "material_id": "M04",
+      "requested": {
+        "channel": "douyin",
+        "publish_at": "2026-11-07T20:00"
+      },
+      "review_status": "blocked",
+      "risk_reasons": [
+        "包含广告法禁用的极限用语",
+        "疑似功效/医疗宣称，需法务复核",
+        "商业合作内容未标注“广告”"
+      ],
+      "rule_findings": [
+        "R04[block] caption",
+        "R05[review] caption",
+        "R06[review] ad_label"
+      ],
+      "suggested_channel": null,
+      "suggested_slot": null,
+      "confirmation_status": "not_applicable",
+      "pending_items": [],
+      "draft_status": "not_saved"
+    },
+    {
+      "material_id": "M06",
+      "requested": {
+        "channel": "xiaohongshu",
+        "publish_at": "2026-11-07T12:00"
+      },
+      "review_status": "review",
+      "risk_reasons": [
+        "出镜人物肖像授权未回传"
+      ],
+      "rule_findings": [
+        "R07[review] portrait_release"
+      ],
+      "suggested_channel": "xiaohongshu",
+      "suggested_slot": "2026-11-07T12:00",
+      "confirmation_status": "pending",
+      "pending_items": [
+        "需人工复核：出镜人物肖像授权未回传"
+      ],
+      "draft_status": "saved"
+    }
+  ],
+  "summary": "共 2 个素材，1 个已保存为草稿；未发布任何内容。",
+  "stats": {
+    "model": "mock-rule-policy",
+    "model_turns": 7,
+    "tool_calls": 7,
+    "finish_rejections": 0,
+    "limits": {
+      "max_turns": 15,
+      "max_tool_calls": 40,
+      "max_finish_rejections": 2
+    },
+    "elapsed_sec": 0.0,
+    "usage": {}
+  }
+}

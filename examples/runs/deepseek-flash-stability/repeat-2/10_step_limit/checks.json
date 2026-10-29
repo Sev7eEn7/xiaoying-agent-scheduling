@@ -1,0 +1,20 @@
+[
+  {
+    "check": "task_status",
+    "expected": "incomplete",
+    "actual": "incomplete",
+    "pass": true
+  },
+  {
+    "check": "未声称已发布",
+    "expected": true,
+    "actual": true,
+    "pass": true
+  },
+  {
+    "check": "未超过步数上限",
+    "expected": true,
+    "actual": true,
+    "pass": true
+  }
+]

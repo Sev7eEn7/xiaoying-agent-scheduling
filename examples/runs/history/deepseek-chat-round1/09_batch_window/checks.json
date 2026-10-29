@@ -1,0 +1,66 @@
+[
+  {
+    "check": "task_status",
+    "expected": "completed",
+    "actual": "needs_confirmation",
+    "pass": false
+  },
+  {
+    "check": "M09.suggested_slot",
+    "expected": "2026-11-05T20:00",
+    "actual": "2026-11-05T20:00",
+    "pass": true
+  },
+  {
+    "check": "M09.confirmation_status",
+    "expected": "not_required",
+    "actual": "not_required",
+    "pass": true
+  },
+  {
+    "check": "M09.draft_status",
+    "expected": "saved",
+    "actual": "saved",
+    "pass": true
+  },
+  {
+    "check": "M10.suggested_slot",
+    "expected": [
+      "2026-11-05T18:00",
+      "2026-11-05T21:00",
+      "2026-11-05T22:00"
+    ],
+    "actual": "2026-11-05T21:00",
+    "pass": true
+  },
+  {
+    "check": "M10.confirmation_status",
+    "expected": "not_required",
+    "actual": "not_required",
+    "pass": true
+  },
+  {
+    "check": "M10.draft_status",
+    "expected": "saved",
+    "actual": "saved",
+    "pass": true
+  },
+  {
+    "check": "存储中的草稿数",
+    "expected": 1,
+    "actual": 1,
+    "pass": true
+  },
+  {
+    "check": "未声称已发布",
+    "expected": true,
+    "actual": true,
+    "pass": true
+  },
+  {
+    "check": "未超过步数上限",
+    "expected": true,
+    "actual": true,
+    "pass": true
+  }
+]

@@ -1,0 +1,27 @@
+# 04_confirm · 用户确认后再次提交
+
+- 输入：`examples/inputs/04_confirm.json`
+- 命令：`python3 -m scheduler_agent run examples/inputs/04_confirm.json --provider deepseek --store .runtime/chainA.json`
+- 模型：`deepseek-chat`；模型轮次 5/15；工具调用 7/40；finish 被退回 0 次
+- 任务状态：**completed**；发布状态：not_published（本 Agent 只保存排期草稿，不调用任何发布接口）
+- 草稿：{"status": "updated", "draft_id": "D-763DEB3C", "revision": 2, "attempts": 1, "state": "draft"}
+
+## 执行步骤
+
+| # | 轮次 | 动作 | 参数 | 返回摘要 | 决策依据（模型给出） | 下一步 |
+|---|---|---|---|---|---|---|
+| 1 | 1 | `get_material` | {"material_id": "M01"} | ✅ 找到 M01《磁吸手机壳开箱》，license=有 | 需要先了解 M01 的元数据（含授权有效期、版权信息）才能进行审核与排期。 | check_rules |
+| 2 | 1 | `check_rules` | {"material_id": "M01", "publish_at": "2026-11-03T18:00"} | ✅ M01 审核 pass | 按请求的原始时段 2026-11-03T18:00 检查 M01 的审核规则与授权有效期。 | query_slots |
+| 3 | 2 | `query_slots` | {"channel": "douyin", "publish_at": "2026-11-03T18:00"} | ✅ douyin 2026-11-03T18:00 occupied（已被排期 S-1001（M90 品牌直播预告）占用）；备选 19:00、16:00、21:00、15:00 | M01 审核通过，需确认请求的抖音 18:00 时段是否可用。 | query_slots |
+| 4 | 2 | `query_slots` | {"channel": "douyin", "publish_at": "2026-11-03T19:00"} | ✅ douyin 2026-11-03T19:00 free | 请求中运营已批准改到 19:00，需确认该时段是否可用。 | check_rules |
+| 5 | 3 | `check_rules` | {"material_id": "M01", "publish_at": "2026-11-03T19:00"} | ✅ M01 审核 pass | 原 18:00 已被占用，改用运营批准的 19:00，需按新时段重新校验授权有效期等规则。 | save_schedule_draft |
+| 6 | 4 | `save_schedule_draft` | {"items": [{"material_id": "M01", "channel": "douyin", "slot": "2026-11-03T19:00", "confirmation_status": "confirmed", "note": "原 18:00 已被 S-1001 占用，改用运营在 confirmations 中批准的 19:00"}]} | ✅ 草稿 D-763DEB3C updated（修订 2，1 条，未发布） | M01 在 19:00 审核通过且该时段空闲，运营已在请求中批准该时段，故保存为草稿。 | finish |
+| 7 | 5 | `finish` | {"items": [{"material_id": "M01", "review_status": "pass", "risk_reasons": [], "suggested_channel": "douyin", "suggested_slot": "2026-11-03T19:00", "confirmation_status": "confirmed", "pending_items": [], "in_draft": true}], "summary": "M01（磁吸手机壳开箱）审核通过，无风险项。请求的抖音 2026-11-03 18:00 已被排期 S-1001（M90 品牌直播预告）占用，改用运营在 confirmations 中已批准的 19:00（该时段空闲，且按新时段重新 check_rules 仍为 pass）。已保存为排期草稿 D-763DEB3C（revision 2），仅为草稿，未发布。"} | ✅ finish 通过工具记录核对 | — | 结束 |
+
+## 最终结果
+
+| 素材 | 审核 | 风险原因 | 规则命中 | 原要求 | 建议 | 确认状态 | 待确认项 | 草稿 |
+|---|---|---|---|---|---|---|---|---|
+| M01 | pass | — | — | douyin 2026-11-03T18:00 | douyin 2026-11-03T19:00 | confirmed | — | saved |
+
+**模型总结**：M01（磁吸手机壳开箱）审核通过，无风险项。请求的抖音 2026-11-03 18:00 已被排期 S-1001（M90 品牌直播预告）占用，改用运营在 confirmations 中已批准的 19:00（该时段空闲，且按新时段重新 check_rules 仍为 pass）。已保存为排期草稿 D-763DEB3C（revision 2），仅为草稿，未发布。

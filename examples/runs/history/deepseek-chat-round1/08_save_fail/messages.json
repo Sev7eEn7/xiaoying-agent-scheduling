@@ -1,0 +1,132 @@
+[
+  {
+    "role": "system",
+    "content": "你是内容团队的「素材审核与发布排期」助手。目标：对请求中的每个素材给出审核结论、风险原因、建议时段和待确认项，并把可以排期的素材保存为一份【排期草稿】。\n\n## 硬性边界\n1. 你没有发布能力，只能保存草稿。任何输出都不得声称“已发布”“已上线”“发布成功”。\n2. 用户给出的渠道和发布时间是硬性要求。需要改动时只能作为建议：confirmation_status=pending，并在 pending_items 写明待确认内容。只有新时段落在该素材的 acceptable_window 内，或请求的 confirmations 中用户已批准该时段时，才可以是 not_required / confirmed。\n3. 审核结论以 check_rules 的结果为依据：\n   - block：阻断，不得放入草稿，说明风险原因；\n   - review：可以放入草稿，但必须 pending 等待人工复核；\n   - incomplete：先判断能否补查（例如版权信息缺失可以用 lookup_license 查询版权登记库，查到后要重新 check_rules）；补查无果则 needs_info，不放入草稿，并列出需要补充的信息。\n4. 请求缺少发布时间等关键信息时不要自行编造，把它列为待确认项。\n5. 同一批次的多个素材不能占用同一渠道的同一时段。query_slots 可以通过 also_taken 传入你已规划的时段。\n6. 时段以整点为单位，08:00–23:00 可发。需要替代时段时，默认选择不早于原要求的最近空闲时段（素材可能尚未就绪），除非用户允许的窗口另有更合适的选择。\n7. 把所有可排期素材合并为一次 save_schedule_draft。保存是幂等的：同一请求再次保存返回 duplicate（内容相同）或 updated（同一份草稿的新修订），都不会产生第二份草稿。\n8. 工具返回 ok=false 时，读 error：retryable=true 可以重试（同一工具最多再试 2 次）；仍失败就如实报告，绝不能声称已保存。保存校验失败（VALIDATION_FAILED）时按 issues 调整后再保存。\n9. 每次调用工具都要在 reason 中用一句话写明这一步的依据（基于已经观察到的结果）。\n10. 全部处理完后调用 finish。finish 会与工具记录核对，被拒绝时按 issues 修正后再次提交。"
+  },
+  {
+    "role": "user",
+    "content": "今天是 2026-10-29。请处理下面的排期请求（JSON）：\n```json\n{\n  \"request_id\": \"REQ-08\",\n  \"items\": [\n    {\n      \"material_id\": \"M02\",\n      \"channel\": \"xiaohongshu\",\n      \"publish_at\": \"2026-11-08T12:00\"\n    }\n  ]\n}\n```"
+  },
+  {
+    "role": "assistant",
+    "content": "我先读取素材元数据，并检查审核规则。",
+    "tool_calls": [
+      {
+        "id": "call_00_TaZg2QXBNCJUFcsyUHNg8971",
+        "type": "function",
+        "function": {
+          "name": "get_material",
+          "arguments": "{\"material_id\": \"M02\", \"reason\": \"请求要求为 M02 排期，先读取素材元数据以确认基本信息。\"}"
+        }
+      },
+      {
+        "id": "call_01_5hm54Pfjp7jWq5orjqld7604",
+        "type": "function",
+        "function": {
+          "name": "check_rules",
+          "arguments": "{\"material_id\": \"M02\", \"publish_at\": \"2026-11-08T12:00\", \"reason\": \"按请求的渠道与时段对 M02 执行审核规则检查。\"}"
+        }
+      }
+    ]
+  },
+  {
+    "role": "tool",
+    "tool_call_id": "call_00_TaZg2QXBNCJUFcsyUHNg8971",
+    "content": "{\"ok\": true, \"found\": true, \"material\": {\"id\": \"M02\", \"title\": \"秋季通勤三套穿搭\", \"type\": \"image\", \"category\": \"服饰\", \"owner\": \"内容组B\", \"caption\": \"秋季通勤三套穿搭，早晚温差大也能从容应对。\", \"license\": {\"type\": \"original\", \"holder\": \"内容组B\", \"expires_at\": null}, \"music\": {\"used\": false}, \"has_person\": true, \"portrait_release\": true, \"is_commercial\": false, \"ad_label\": false}}"
+  },
+  {
+    "role": "tool",
+    "tool_call_id": "call_01_5hm54Pfjp7jWq5orjqld7604",
+    "content": "{\"ok\": true, \"material_id\": \"M02\", \"rules_version\": \"2026-10-28\", \"publish_date\": \"2026-11-08\", \"result\": \"pass\", \"findings\": [], \"license_source\": \"metadata\"}"
+  },
+  {
+    "role": "assistant",
+    "content": "审核通过。现在查询小红书 2026-11-08 12:00 时段是否可用。",
+    "tool_calls": [
+      {
+        "id": "call_00_F76zhZlCnZVHSRb0gypK3385",
+        "type": "function",
+        "function": {
+          "name": "query_slots",
+          "arguments": "{\"channel\": \"xiaohongshu\", \"publish_at\": \"2026-11-08T12:00\", \"reason\": \"M02 审核结果为 pass，需确认请求的小红书 2026-11-08 12:00 时段是否可用。\"}"
+        }
+      }
+    ]
+  },
+  {
+    "role": "tool",
+    "tool_call_id": "call_00_F76zhZlCnZVHSRb0gypK3385",
+    "content": "{\"ok\": true, \"channel\": \"xiaohongshu\", \"requested\": {\"slot\": \"2026-11-08T12:00\", \"status\": \"free\"}}"
+  },
+  {
+    "role": "assistant",
+    "content": "时段空闲，保存排期草稿。",
+    "tool_calls": [
+      {
+        "id": "call_00_2QqIbTPszHbbSGUriKZK9198",
+        "type": "function",
+        "function": {
+          "name": "save_schedule_draft",
+          "arguments": "{\"items\": [{\"material_id\": \"M02\", \"channel\": \"xiaohongshu\", \"slot\": \"2026-11-08T12:00\", \"confirmation_status\": \"not_required\"}], \"reason\": \"M02 审核 pass 且小红书 2026-11-08 12:00 时段空闲，与用户要求一致，保存为草稿。\"}"
+        }
+      }
+    ]
+  },
+  {
+    "role": "tool",
+    "tool_call_id": "call_00_2QqIbTPszHbbSGUriKZK9198",
+    "content": "{\"ok\": false, \"error\": {\"code\": \"STORAGE_UNAVAILABLE\", \"message\": \"草稿存储服务不可用，本次未写入任何数据\", \"retryable\": true}, \"saved\": false}"
+  },
+  {
+    "role": "assistant",
+    "content": "存储服务暂时不可用，按规则重试（第 1 次）。",
+    "tool_calls": [
+      {
+        "id": "call_00_akI0h6sooSGI3nXbc82Z4984",
+        "type": "function",
+        "function": {
+          "name": "save_schedule_draft",
+          "arguments": "{\"items\": [{\"channel\": \"xiaohongshu\", \"confirmation_status\": \"not_required\", \"material_id\": \"M02\", \"slot\": \"2026-11-08T12:00\"}], \"reason\": \"上次保存返回 STORAGE_UNAVAILABLE 且 retryable=true，重试保存同一份草稿。\"}"
+        }
+      }
+    ]
+  },
+  {
+    "role": "tool",
+    "tool_call_id": "call_00_akI0h6sooSGI3nXbc82Z4984",
+    "content": "{\"ok\": false, \"error\": {\"code\": \"STORAGE_UNAVAILABLE\", \"message\": \"草稿存储服务不可用，本次未写入任何数据\", \"retryable\": true}, \"saved\": false}"
+  },
+  {
+    "role": "assistant",
+    "content": "第二次失败，再重试一次（第 2 次，也是最后一次）。",
+    "tool_calls": [
+      {
+        "id": "call_00_HWDmM44HPPRcAy2JwqzZ9572",
+        "type": "function",
+        "function": {
+          "name": "save_schedule_draft",
+          "arguments": "{\"items\": [{\"channel\": \"xiaohongshu\", \"confirmation_status\": \"not_required\", \"material_id\": \"M02\", \"slot\": \"2026-11-08T12:00\"}], \"reason\": \"第二次保存仍返回 STORAGE_UNAVAILABLE，按规则进行最后一次重试。\"}"
+        }
+      }
+    ]
+  },
+  {
+    "role": "tool",
+    "tool_call_id": "call_00_HWDmM44HPPRcAy2JwqzZ9572",
+    "content": "{\"ok\": false, \"error\": {\"code\": \"STORAGE_UNAVAILABLE\", \"message\": \"草稿存储服务不可用，本次未写入任何数据\", \"retryable\": true}, \"saved\": false}"
+  },
+  {
+    "role": "assistant",
+    "content": "三次保存均失败，草稿未写入。如实提交结果。",
+    "tool_calls": [
+      {
+        "id": "call_00_LtBPiegdXYn7wyADJvGy9810",
+        "type": "function",
+        "function": {
+          "name": "finish",
+          "arguments": "{\"items\": [{\"material_id\": \"M02\", \"review_status\": \"pass\", \"risk_reasons\": [], \"suggested_channel\": \"xiaohongshu\", \"suggested_slot\": \"2026-11-08T12:00\", \"confirmation_status\": \"not_required\", \"pending_items\": [\"草稿保存失败（STORAGE_UNAVAILABLE，已重试 2 次仍不可用），需存储服务恢复后重新保存排期草稿\"], \"in_draft\": false}], \"summary\": \"M02《秋季通勤三套穿搭》审核通过（原创、有肖像授权、非商业、无音乐），小红书 2026-11-08 12:00 时段空闲，与请求一致无需确认。但草稿存储服务连续三次返回 STORAGE_UNAVAILABLE，本次未写入任何草稿，需待服务恢复后重新保存；未做任何发布操作。\"}"
+        }
+      }
+    ]
+  }
+]

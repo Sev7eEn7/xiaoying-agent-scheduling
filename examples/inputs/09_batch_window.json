@@ -1,0 +1,19 @@
+{
+  "request_id": "REQ-09",
+  "items": [
+    {
+      "material_id": "M09",
+      "channel": "douyin",
+      "publish_at": "2026-11-05T20:00"
+    },
+    {
+      "material_id": "M10",
+      "channel": "douyin",
+      "publish_at": "2026-11-05T20:00",
+      "acceptable_window": {
+        "start": "2026-11-05T18:00",
+        "end": "2026-11-05T22:00"
+      }
+    }
+  ]
+}

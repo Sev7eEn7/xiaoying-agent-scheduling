@@ -1,0 +1,98 @@
+{
+  "request_id": "REQ-06",
+  "request_key": "REQ-06",
+  "task_status": "needs_confirmation",
+  "publish_status": "not_published",
+  "publish_note": "本 Agent 只保存排期草稿，不调用任何发布接口",
+  "draft": {
+    "status": "created",
+    "draft_id": "D-E1DC4F7C",
+    "revision": 1,
+    "attempts": 1,
+    "state": "draft"
+  },
+  "items": [
+    {
+      "material_id": "M03",
+      "requested": {
+        "channel": "douyin",
+        "publish_at": "2026-11-06T12:00"
+      },
+      "review_status": "pass",
+      "risk_reasons": [],
+      "rule_findings": [],
+      "suggested_channel": "douyin",
+      "suggested_slot": "2026-11-06T12:00",
+      "confirmation_status": "not_required",
+      "pending_items": [],
+      "draft_status": "saved"
+    },
+    {
+      "material_id": "M05",
+      "requested": {
+        "channel": "douyin",
+        "publish_at": "2026-11-06T15:00"
+      },
+      "review_status": "needs_info",
+      "risk_reasons": [
+        "缺少必填字段 owner（素材归属人）",
+        "缺少必填字段 license，且版权登记库未查到该素材登记记录，无法补查",
+        "使用背景音乐但缺少音乐授权编号 music.license_id",
+        "出镜人物肖像授权 portrait_release 未提供，需人工复核"
+      ],
+      "rule_findings": [
+        "R01[missing] owner",
+        "R01[missing] license",
+        "R03[missing] music.license_id",
+        "R07[review] portrait_release"
+      ],
+      "suggested_channel": "douyin",
+      "suggested_slot": null,
+      "confirmation_status": "pending",
+      "pending_items": [
+        "补充素材归属人 owner",
+        "补充版权授权信息（版权登记库无记录，需提供授权文件或原创声明）",
+        "补充背景音乐授权编号 music.license_id",
+        "补充出镜人物肖像授权 portrait_release，或改为修版移除可识别人物",
+        "以上资料补齐后需重新审核，原定 2026-11-06 15:00 抖音时段将重新确认"
+      ],
+      "draft_status": "not_saved"
+    },
+    {
+      "material_id": "M08",
+      "requested": {
+        "channel": "xiaohongshu"
+      },
+      "review_status": "pass",
+      "risk_reasons": [],
+      "rule_findings": [],
+      "suggested_channel": "xiaohongshu",
+      "suggested_slot": null,
+      "confirmation_status": "pending",
+      "pending_items": [
+        "请求未给出小红书发布时间，请指定具体整点时段（08:00–23:00），确认后再校验时段可用性并入草稿"
+      ],
+      "draft_status": "not_saved"
+    }
+  ],
+  "summary": "本批 3 个素材：M03 版权信息缺失，经版权登记库补查（CR-5531，有效至 2027-06-30）后复核通过，抖音 2026-11-06 12:00 时段空闲，已按用户要求写入排期草稿（草稿 D-E1DC4F7C，仅草稿未发布）。M05 为资料缺失：owner、license（登记库无记录）、音乐授权编号、肖像授权均缺，需补充后才能排期，暂不入草稿，原定 15:00 抖音时段待资料补齐后重新确认。M08 内容审核通过，但请求未给发布时间，需用户指定整点时段后再排入小红书；未自行编造时段。所有结果仅为草稿，未发布任何内容。",
+  "stats": {
+    "model": "deepseek-flash",
+    "model_turns": 6,
+    "tool_calls": 13,
+    "finish_rejections": 0,
+    "limits": {
+      "max_turns": 15,
+      "max_tool_calls": 40,
+      "max_finish_rejections": 2
+    },
+    "elapsed_sec": 15.96,
+    "usage": {
+      "prompt_tokens": 22914,
+      "completion_tokens": 2304,
+      "total_tokens": 25218,
+      "prompt_cache_hit_tokens": 21248,
+      "prompt_cache_miss_tokens": 1666
+    }
+  }
+}

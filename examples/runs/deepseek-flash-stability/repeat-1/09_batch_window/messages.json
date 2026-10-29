@@ -1,0 +1,158 @@
+[
+  {
+    "role": "system",
+    "content": "你是内容团队的「素材审核与发布排期」助手。目标：对请求中的每个素材给出审核结论、风险原因、建议时段和待确认项，并把可以排期的素材保存为一份【排期草稿】。\n\n## 硬性边界\n1. 你没有发布能力，只能保存草稿。任何输出都不得声称“已发布”“已上线”“发布成功”。\n2. 用户给出的渠道和发布时间是硬性要求。需要改动时只能作为建议：confirmation_status=pending，并在 pending_items 写明待确认内容。只有新时段落在该素材的 acceptable_window 内，或请求的 confirmations 中用户已批准该时段时，才可以是 not_required / confirmed。\n3. 审核结论以 check_rules 的结果为依据：\n   - block：阻断，不得放入草稿，说明风险原因；\n   - review：可以放入草稿，但必须 pending 等待人工复核；\n   - incomplete：先判断能否补查（例如版权信息缺失可以用 lookup_license 查询版权登记库，查到后要重新 check_rules）；补查无果则 needs_info，不放入草稿，并列出需要补充的信息。\n4. 请求缺少发布时间等关键信息时不要自行编造，把它列为待确认项。\n5. 同一批次的多个素材不能占用同一渠道的同一时段。query_slots 可以通过 also_taken 传入你已规划的时段。多个素材争同一时段时，尽量少改动用户的硬性要求：优先调整能在自己 acceptable_window 内解决的素材，保留没有窗口的素材的原时段，使需要用户确认的改动最少。\n6. 时段以整点为单位，08:00–23:00 可发。需要替代时段时，默认选择不早于原要求的最近空闲时段（素材可能尚未就绪），除非用户允许的窗口另有更合适的选择。\n7. 把所有可排期素材合并为一次 save_schedule_draft。保存是幂等的：同一请求再次保存返回 duplicate（内容相同）或 updated（同一份草稿的新修订），都不会产生第二份草稿。\n8. 工具返回 ok=false 时，读 error：retryable=true 可以重试（同一工具最多再试 2 次）；仍失败就如实报告，绝不能声称已保存。保存校验失败（VALIDATION_FAILED）时按 issues 调整后再保存。\n9. 每次调用工具都要在 reason 中用一句话写明这一步的依据（基于已经观察到的结果）。\n10. 全部处理完后调用 finish。finish 会与工具记录核对，被拒绝时按 issues 修正后再次提交。"
+  },
+  {
+    "role": "user",
+    "content": "今天是 2026-10-29。请处理下面的排期请求（JSON）：\n```json\n{\n  \"request_id\": \"REQ-09\",\n  \"items\": [\n    {\n      \"material_id\": \"M09\",\n      \"channel\": \"douyin\",\n      \"publish_at\": \"2026-11-05T20:00\"\n    },\n    {\n      \"material_id\": \"M10\",\n      \"channel\": \"douyin\",\n      \"publish_at\": \"2026-11-05T20:00\",\n      \"acceptable_window\": {\n        \"start\": \"2026-11-05T18:00\",\n        \"end\": \"2026-11-05T22:00\"\n      }\n    }\n  ]\n}\n```"
+  },
+  {
+    "role": "assistant",
+    "content": "我会先读取这两个素材的元数据。",
+    "tool_calls": [
+      {
+        "id": "call_00_ET_69lQTAaeRsDeoVVC0iBO9065",
+        "type": "function",
+        "function": {
+          "name": "get_material",
+          "arguments": "{\"material_id\": \"M09\", \"reason\": \"请求中两个素材需先确认元数据是否存在及是否含版权信息。\"}"
+        }
+      },
+      {
+        "id": "call_01_ET_NxfjKBEPqtu9mgxR6OvZ5687",
+        "type": "function",
+        "function": {
+          "name": "get_material",
+          "arguments": "{\"material_id\": \"M10\", \"reason\": \"请求中两个素材需先确认元数据是否存在及是否含版权信息。\"}"
+        }
+      }
+    ]
+  },
+  {
+    "role": "tool",
+    "tool_call_id": "call_00_ET_69lQTAaeRsDeoVVC0iBO9065",
+    "content": "{\"ok\": true, \"found\": true, \"material\": {\"id\": \"M09\", \"title\": \"桌面收纳改造\", \"type\": \"video\", \"category\": \"家居\", \"owner\": \"内容组C\", \"caption\": \"两百元预算完成的桌面收纳改造记录。\", \"license\": {\"type\": \"original\", \"holder\": \"内容组C\", \"expires_at\": null}, \"music\": {\"used\": true, \"license_id\": \"MUS-3302\", \"expires_at\": \"2027-09-30\"}, \"has_person\": false, \"portrait_release\": null, \"is_commercial\": false, \"ad_label\": false}}"
+  },
+  {
+    "role": "tool",
+    "tool_call_id": "call_01_ET_NxfjKBEPqtu9mgxR6OvZ5687",
+    "content": "{\"ok\": true, \"found\": true, \"material\": {\"id\": \"M10\", \"title\": \"城市夜跑路线推荐\", \"type\": \"video\", \"category\": \"运动\", \"owner\": \"内容组C\", \"caption\": \"三条适合下班后夜跑的城市路线。\", \"license\": {\"type\": \"original\", \"holder\": \"内容组C\", \"expires_at\": null}, \"music\": {\"used\": true, \"license_id\": \"MUS-3307\", \"expires_at\": \"2027-09-30\"}, \"has_person\": true, \"portrait_release\": true, \"is_commercial\": false, \"ad_label\": false}}"
+  },
+  {
+    "role": "assistant",
+    "content": "两个素材的元数据都已齐全。接下来我会在这两个素材各自请求的时段执行审核规则检查，并查询该渠道的 20:00 时段。",
+    "tool_calls": [
+      {
+        "id": "call_00_aDntJ5tCr45cB2On39UY5110",
+        "type": "function",
+        "function": {
+          "name": "check_rules",
+          "arguments": "{\"material_id\": \"M09\", \"publish_at\": \"2026-11-05T20:00\", \"reason\": \"M09 元数据齐全，按其请求的 2026-11-05T20:00 校验审核规则与授权有效期。\"}"
+        }
+      },
+      {
+        "id": "call_01_jZTD3iVFXewqok3GGBTe8104",
+        "type": "function",
+        "function": {
+          "name": "check_rules",
+          "arguments": "{\"material_id\": \"M10\", \"publish_at\": \"2026-11-05T20:00\", \"reason\": \"M10 元数据齐全（含肖像授权），按其请求的 2026-11-05T20:00 校验审核规则与授权有效期。\"}"
+        }
+      },
+      {
+        "id": "call_02_HPHZ0nvdkjyO7Oki44L67698",
+        "type": "function",
+        "function": {
+          "name": "query_slots",
+          "arguments": "{\"channel\": \"douyin\", \"publish_at\": \"2026-11-05T20:00\", \"reason\": \"两个素材都请求抖音 2026-11-05T20:00，需确认该时段占用情况。\"}"
+        }
+      }
+    ]
+  },
+  {
+    "role": "tool",
+    "tool_call_id": "call_00_aDntJ5tCr45cB2On39UY5110",
+    "content": "{\"ok\": true, \"material_id\": \"M09\", \"rules_version\": \"2026-10-28\", \"publish_date\": \"2026-11-05\", \"result\": \"pass\", \"findings\": [], \"license_source\": \"metadata\"}"
+  },
+  {
+    "role": "tool",
+    "tool_call_id": "call_01_jZTD3iVFXewqok3GGBTe8104",
+    "content": "{\"ok\": true, \"material_id\": \"M10\", \"rules_version\": \"2026-10-28\", \"publish_date\": \"2026-11-05\", \"result\": \"pass\", \"findings\": [], \"license_source\": \"metadata\"}"
+  },
+  {
+    "role": "tool",
+    "tool_call_id": "call_02_HPHZ0nvdkjyO7Oki44L67698",
+    "content": "{\"ok\": true, \"channel\": \"douyin\", \"requested\": {\"slot\": \"2026-11-05T20:00\", \"status\": \"free\"}}"
+  },
+  {
+    "role": "assistant",
+    "content": "两个素材都通过审核，20:00 空闲，但两者争同一时段。M10 有 18:00–22:00 的允许窗口，M09 没有，因此保留 M09 原时段，为 M10 找窗口内、不早于原要求的最近空闲时段。",
+    "tool_calls": [
+      {
+        "id": "call_00_kW44tVmPS0a5RHNI7qt08354",
+        "type": "function",
+        "function": {
+          "name": "query_slots",
+          "arguments": "{\"channel\": \"douyin\", \"publish_at\": \"2026-11-05T21:00\", \"also_taken\": [{\"channel\": \"douyin\", \"slot\": \"2026-11-05T20:00\"}], \"reason\": \"M09 无允许窗口需保留 20:00，为有 18:00–22:00 窗口的 M10 查询不早于原要求的最近空闲时段（20:00 已规划给 M09）。\"}"
+        }
+      }
+    ]
+  },
+  {
+    "role": "tool",
+    "tool_call_id": "call_00_kW44tVmPS0a5RHNI7qt08354",
+    "content": "{\"ok\": true, \"channel\": \"douyin\", \"requested\": {\"slot\": \"2026-11-05T21:00\", \"status\": \"free\"}}"
+  },
+  {
+    "role": "assistant",
+    "content": "",
+    "tool_calls": [
+      {
+        "id": "call_00_k3xrUQXa1gWIjOnhCUxA1763",
+        "type": "function",
+        "function": {
+          "name": "check_rules",
+          "arguments": "{\"material_id\": \"M10\", \"publish_at\": \"2026-11-05T21:00\", \"reason\": \"M10 拟改到窗口内的 21:00，重新校验该时段下的审核规则。\"}"
+        }
+      }
+    ]
+  },
+  {
+    "role": "tool",
+    "tool_call_id": "call_00_k3xrUQXa1gWIjOnhCUxA1763",
+    "content": "{\"ok\": true, \"material_id\": \"M10\", \"rules_version\": \"2026-10-28\", \"publish_date\": \"2026-11-05\", \"result\": \"pass\", \"findings\": [], \"license_source\": \"metadata\"}"
+  },
+  {
+    "role": "assistant",
+    "content": "两个素材均通过审核，时段也无冲突。将两个素材合并保存为一份草稿（M09 保持 20:00，M10 调到其允许窗口内的 21:00）。",
+    "tool_calls": [
+      {
+        "id": "call_00_ibhLcp0m0nIt0Ju1TvBF2783",
+        "type": "function",
+        "function": {
+          "name": "save_schedule_draft",
+          "arguments": "{\"items\": [{\"material_id\": \"M09\", \"channel\": \"douyin\", \"slot\": \"2026-11-05T20:00\", \"confirmation_status\": \"not_required\"}, {\"material_id\": \"M10\", \"channel\": \"douyin\", \"slot\": \"2026-11-05T21:00\", \"confirmation_status\": \"not_required\", \"note\": \"与 M09 争同一时段，按用户给出的 acceptable_window 18:00–22:00 调整到 21:00\"}], \"reason\": \"两个素材 check_rules 均为 pass，20:00 已规划给无窗口的 M09，M10 改到其允许窗口内的 21:00（已确认空闲且重新检查通过）。\"}"
+        }
+      }
+    ]
+  },
+  {
+    "role": "tool",
+    "tool_call_id": "call_00_ibhLcp0m0nIt0Ju1TvBF2783",
+    "content": "{\"ok\": true, \"saved\": true, \"status\": \"created\", \"draft_id\": \"D-E0F7B21A\", \"revision\": 1, \"content_hash\": \"4a8beac13db880c8\", \"state\": \"draft\", \"items_saved\": 2, \"note\": \"仅保存为排期草稿，未发布；duplicate 表示同一请求已存在相同草稿，未重复创建\"}"
+  },
+  {
+    "role": "assistant",
+    "content": "",
+    "tool_calls": [
+      {
+        "id": "call_00_3y7nSskbQzx6O1i0LhwG9952",
+        "type": "function",
+        "function": {
+          "name": "finish",
+          "arguments": "{\"items\": [{\"material_id\": \"M09\", \"review_status\": \"pass\", \"risk_reasons\": [], \"suggested_channel\": \"douyin\", \"suggested_slot\": \"2026-11-05T20:00\", \"confirmation_status\": \"not_required\", \"pending_items\": [], \"in_draft\": true}, {\"material_id\": \"M10\", \"review_status\": \"pass\", \"risk_reasons\": [], \"suggested_channel\": \"douyin\", \"suggested_slot\": \"2026-11-05T21:00\", \"confirmation_status\": \"not_required\", \"pending_items\": [], \"in_draft\": true}], \"summary\": \"M09、M10 审核均 pass（原创素材、音乐授权至 2027-09-30、M10 已有肖像授权，无风险项）。两者原本都要求抖音 2026-11-05 20:00，冲突：M09 无允许窗口，保留 20:00；M10 改到其 acceptable_window（18:00–22:00）内的 21:00，且该时段空闲、重新检查通过，属于用户已授权的可调整范围，无需额外确认。两个素材已合并保存为排期草稿 D-E0F7B21A（修订 1，state=draft），未发布也未上线，请内容团队在草稿中复核后再走发布流程。\"}"
+        }
+      }
+    ]
+  }
+]

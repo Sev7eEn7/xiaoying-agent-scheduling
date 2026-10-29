@@ -1,0 +1,53 @@
+{
+  "request_id": "REQ-02",
+  "request_key": "REQ-02",
+  "task_status": "needs_confirmation",
+  "publish_status": "not_published",
+  "publish_note": "本 Agent 只保存排期草稿，不调用任何发布接口",
+  "draft": {
+    "status": "duplicate",
+    "draft_id": "D-763DEB3C",
+    "revision": 1,
+    "attempts": 1,
+    "state": "draft"
+  },
+  "items": [
+    {
+      "material_id": "M01",
+      "requested": {
+        "channel": "douyin",
+        "publish_at": "2026-11-03T18:00"
+      },
+      "review_status": "pass",
+      "risk_reasons": [],
+      "rule_findings": [],
+      "suggested_channel": "douyin",
+      "suggested_slot": "2026-11-03T19:00",
+      "confirmation_status": "pending",
+      "pending_items": [
+        "原要求抖音 2026-11-03T18:00 已被排期 S-1001（M90 品牌直播预告）占用，草稿改为同日 19:00，请确认是否接受该时段改动（或指定其他时段）"
+      ],
+      "draft_status": "saved"
+    }
+  ],
+  "summary": "REQ-02 仅含 1 个素材 M01（磁吸手机壳开箱）。get_material 显示为原创、音乐 MUS-1031 授权至 2027-12-31、无真人出镜，元数据完整无需补查版权。check_rules 在 2026-11-03 返回 pass、无 findings。用户要求的抖音 2026-11-03T18:00 已被排期 S-1001（M90 品牌直播预告）占用，按“不早于原要求的最近空闲时段”改议 19:00（已查为空闲），素材无 acceptable_window 且请求未批准该时段，故确认状态为 pending。已保存为排期草稿 D-763DEB3C（返回 duplicate，即同一份草稿已存在，未重复创建），仅草稿、未发布。待用户确认时段改动后即可推进。",
+  "stats": {
+    "model": "deepseek-flash",
+    "model_turns": 6,
+    "tool_calls": 6,
+    "finish_rejections": 0,
+    "limits": {
+      "max_turns": 15,
+      "max_tool_calls": 40,
+      "max_finish_rejections": 2
+    },
+    "elapsed_sec": 12.31,
+    "usage": {
+      "prompt_tokens": 17537,
+      "completion_tokens": 1479,
+      "total_tokens": 19016,
+      "prompt_cache_hit_tokens": 16128,
+      "prompt_cache_miss_tokens": 1409
+    }
+  }
+}

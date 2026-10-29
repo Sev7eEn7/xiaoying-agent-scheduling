@@ -1,0 +1,68 @@
+[
+  {
+    "check": "task_status",
+    "expected": "needs_confirmation",
+    "actual": "needs_confirmation",
+    "pass": true
+  },
+  {
+    "check": "M01.review_status",
+    "expected": "pass",
+    "actual": "pass",
+    "pass": true
+  },
+  {
+    "check": "M01.suggested_slot",
+    "expected": "2026-11-03T19:00",
+    "actual": "2026-11-03T19:00",
+    "pass": true
+  },
+  {
+    "check": "M01.confirmation_status",
+    "expected": "pending",
+    "actual": "pending",
+    "pass": true
+  },
+  {
+    "check": "M01.draft_status",
+    "expected": "saved",
+    "actual": "saved",
+    "pass": true
+  },
+  {
+    "check": "M01.pending_items 非空",
+    "expected": true,
+    "actual": true,
+    "pass": true
+  },
+  {
+    "check": "draft.status",
+    "expected": "created",
+    "actual": "created",
+    "pass": true
+  },
+  {
+    "check": "存储中的草稿数",
+    "expected": 1,
+    "actual": 1,
+    "pass": true
+  },
+  {
+    "check": "该请求草稿的修订号",
+    "expected": 1,
+    "actual": 1,
+    "pass": true
+  },
+  {
+    "check": "未声称已发布",
+    "expected": true,
+    "actual": true,
+    "pass": true
+  },
+  {
+    "check": "未超过步数上限",
+    "expected": true,
+    "actual": true,
+    "pass": true
+  }
+]

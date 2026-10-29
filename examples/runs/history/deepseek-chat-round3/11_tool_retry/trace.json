@@ -1,0 +1,158 @@
+[
+  {
+    "step": 1,
+    "turn": 1,
+    "type": "tool",
+    "tool": "get_material",
+    "args": {
+      "material_id": "M07"
+    },
+    "reason": "请求要求为 M07 排期，先读取素材元数据以确认基本信息。",
+    "ok": true,
+    "observation": "找到 M07《降噪耳机通勤一周体验》，license=有",
+    "result": {
+      "ok": true,
+      "found": true,
+      "material": {
+        "id": "M07",
+        "title": "降噪耳机通勤一周体验",
+        "type": "video",
+        "category": "3C配件",
+        "owner": "内容组A",
+        "caption": "降噪耳机通勤一周的真实体验，优缺点都说清楚。",
+        "license": {
+          "type": "original",
+          "holder": "内容组A",
+          "expires_at": null
+        },
+        "music": {
+          "used": true,
+          "license_id": "MUS-1188",
+          "expires_at": "2027-06-30"
+        },
+        "has_person": false,
+        "portrait_release": null,
+        "is_commercial": false,
+        "ad_label": false
+      }
+    }
+  },
+  {
+    "step": 2,
+    "turn": 2,
+    "type": "tool",
+    "tool": "check_rules",
+    "args": {
+      "material_id": "M07",
+      "publish_at": "2026-11-08T19:00"
+    },
+    "reason": "元数据完整（原创、音乐授权至 2027-06-30），按请求时段 2026-11-08T19:00 执行审核规则检查。",
+    "ok": true,
+    "observation": "M07 审核 pass",
+    "result": {
+      "ok": true,
+      "material_id": "M07",
+      "rules_version": "2026-10-28",
+      "publish_date": "2026-11-08",
+      "result": "pass",
+      "findings": [],
+      "license_source": "metadata"
+    }
+  },
+  {
+    "step": 3,
+    "turn": 3,
+    "type": "tool",
+    "tool": "query_slots",
+    "args": {
+      "channel": "douyin",
+      "publish_at": "2026-11-08T19:00"
+    },
+    "reason": "审核通过，检查抖音 2026-11-08T19:00 是否可用。",
+    "ok": false,
+    "observation": "失败 TOOL_TIMEOUT：排期服务超时",
+    "result": {
+      "ok": false,
+      "error": {
+        "code": "TOOL_TIMEOUT",
+        "message": "排期服务超时",
+        "retryable": true
+      }
+    }
+  },
+  {
+    "step": 4,
+    "turn": 4,
+    "type": "tool",
+    "tool": "query_slots",
+    "args": {
+      "channel": "douyin",
+      "publish_at": "2026-11-08T19:00"
+    },
+    "reason": "上次查询超时（retryable=true），重试查询抖音该时段占用情况。",
+    "ok": true,
+    "observation": "douyin 2026-11-08T19:00 free",
+    "result": {
+      "ok": true,
+      "channel": "douyin",
+      "requested": {
+        "slot": "2026-11-08T19:00",
+        "status": "free"
+      }
+    }
+  },
+  {
+    "step": 5,
+    "turn": 5,
+    "type": "tool",
+    "tool": "save_schedule_draft",
+    "args": {
+      "items": [
+        {
+          "material_id": "M07",
+          "channel": "douyin",
+          "slot": "2026-11-08T19:00",
+          "confirmation_status": "not_required"
+        }
+      ]
+    },
+    "reason": "M07 审核通过且抖音 2026-11-08T19:00 空闲，与用户要求一致，保存为排期草稿。",
+    "ok": true,
+    "observation": "草稿 D-C3257BC0 created（修订 1，1 条，未发布）",
+    "result": {
+      "ok": true,
+      "saved": true,
+      "status": "created",
+      "draft_id": "D-C3257BC0",
+      "revision": 1,
+      "content_hash": "ab644cf1be2d2306",
+      "state": "draft",
+      "items_saved": 1,
+      "note": "仅保存为排期草稿，未发布；duplicate 表示同一请求已存在相同草稿，未重复创建"
+    }
+  },
+  {
+    "step": 6,
+    "turn": 6,
+    "type": "tool",
+    "tool": "finish",
+    "args": {
+      "items": [
+        {
+          "material_id": "M07",
+          "review_status": "pass",
+          "risk_reasons": [],
+          "suggested_channel": "douyin",
+          "suggested_slot": "2026-11-08T19:00",
+          "confirmation_status": "not_required",
+          "pending_items": [],
+          "in_draft": true
+        }
+      ],
+      "summary": "M07《降噪耳机通勤一周体验》审核通过（原创、音乐授权至 2027-06-30、无真人出镜、非商业推广），抖音 2026-11-08T19:00 空闲，已按用户要求保存为排期草稿 D-C3257BC0（revision 1），未发布。无待确认事项。"
+    },
+    "reason": "",
+    "ok": true,
+    "observation": "finish 通过工具记录核对"
+  }
+]

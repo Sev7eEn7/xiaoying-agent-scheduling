@@ -1,0 +1,72 @@
+{
+  "request_id": "REQ-09",
+  "request_key": "REQ-09",
+  "task_status": "needs_confirmation",
+  "publish_status": "not_published",
+  "publish_note": "本 Agent 只保存排期草稿，不调用任何发布接口",
+  "draft": {
+    "status": "created",
+    "draft_id": "D-E0F7B21A",
+    "revision": 1,
+    "attempts": 1,
+    "state": "draft"
+  },
+  "items": [
+    {
+      "material_id": "M09",
+      "requested": {
+        "channel": "douyin",
+        "publish_at": "2026-11-05T20:00"
+      },
+      "review_status": "pass",
+      "risk_reasons": [],
+      "rule_findings": [],
+      "suggested_channel": "douyin",
+      "suggested_slot": "2026-11-05T21:00",
+      "confirmation_status": "pending",
+      "pending_items": [
+        "原要求 2026-11-05 20:00 与 M10 冲突，建议改为 21:00（该素材无允许窗口，按规则顺延至最近空闲时段），请确认是否接受"
+      ],
+      "draft_status": "saved"
+    },
+    {
+      "material_id": "M10",
+      "requested": {
+        "channel": "douyin",
+        "publish_at": "2026-11-05T20:00",
+        "acceptable_window": {
+          "start": "2026-11-05T18:00",
+          "end": "2026-11-05T22:00"
+        }
+      },
+      "review_status": "pass",
+      "risk_reasons": [],
+      "rule_findings": [],
+      "suggested_channel": "douyin",
+      "suggested_slot": "2026-11-05T20:00",
+      "confirmation_status": "not_required",
+      "pending_items": [],
+      "draft_status": "saved"
+    }
+  ],
+  "summary": "M09、M10 均通过审核（check_rules=pass，无 findings）。两者原定抖音 2026-11-05 20:00 冲突：M10 有 18:00–22:00 允许窗口，保留 20:00（not_required）；M09 无允许窗口，按规则顺延至最近空闲的 21:00，需用户确认（pending）。已合并保存为排期草稿 D-E0F7B21A（revision 1），仅为草稿，未发布。",
+  "stats": {
+    "model": "deepseek-chat",
+    "model_turns": 6,
+    "tool_calls": 9,
+    "finish_rejections": 0,
+    "limits": {
+      "max_turns": 15,
+      "max_tool_calls": 40,
+      "max_finish_rejections": 2
+    },
+    "elapsed_sec": 9.87,
+    "usage": {
+      "prompt_tokens": 19520,
+      "completion_tokens": 1476,
+      "total_tokens": 20996,
+      "prompt_cache_hit_tokens": 17920,
+      "prompt_cache_miss_tokens": 1600
+    }
+  }
+}

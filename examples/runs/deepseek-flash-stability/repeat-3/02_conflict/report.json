@@ -1,0 +1,53 @@
+{
+  "request_id": "REQ-02",
+  "request_key": "REQ-02",
+  "task_status": "needs_confirmation",
+  "publish_status": "not_published",
+  "publish_note": "本 Agent 只保存排期草稿，不调用任何发布接口",
+  "draft": {
+    "status": "created",
+    "draft_id": "D-763DEB3C",
+    "revision": 1,
+    "attempts": 1,
+    "state": "draft"
+  },
+  "items": [
+    {
+      "material_id": "M01",
+      "requested": {
+        "channel": "douyin",
+        "publish_at": "2026-11-03T18:00"
+      },
+      "review_status": "pass",
+      "risk_reasons": [],
+      "rule_findings": [],
+      "suggested_channel": "douyin",
+      "suggested_slot": "2026-11-03T19:00",
+      "confirmation_status": "pending",
+      "pending_items": [
+        "确认抖音发布时段由原要求的 2026-11-03T18:00 顺延至同日 19:00（18:00 已被 S-1001 M90 品牌直播预告占用；19:00 为不早于原要求的最近空闲时段）"
+      ],
+      "draft_status": "saved"
+    }
+  ],
+  "summary": "M01（磁吸手机壳开箱）按规则检查通过（pass，无 findings），已保存为排期草稿 D-763DEB3C（仅草稿，未发布）。唯一问题是原定时段抖音 2026-11-03T18:00 已被 S-1001（M90 品牌直播预告）占用，故建议顺延至同日 19:00，因超出用户硬性要求且素材无可用窗口、请求中也无确认，该时段标记为 pending，需用户确认后再定稿。若用户坚持 18:00，需另行协调 S-1001。",
+  "stats": {
+    "model": "deepseek-flash",
+    "model_turns": 5,
+    "tool_calls": 7,
+    "finish_rejections": 0,
+    "limits": {
+      "max_turns": 15,
+      "max_tool_calls": 40,
+      "max_finish_rejections": 2
+    },
+    "elapsed_sec": 11.64,
+    "usage": {
+      "prompt_tokens": 15321,
+      "completion_tokens": 1652,
+      "total_tokens": 16973,
+      "prompt_cache_hit_tokens": 14208,
+      "prompt_cache_miss_tokens": 1113
+    }
+  }
+}

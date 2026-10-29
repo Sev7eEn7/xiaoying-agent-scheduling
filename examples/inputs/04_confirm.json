@@ -1,0 +1,17 @@
+{
+  "request_id": "REQ-02",
+  "items": [
+    {
+      "material_id": "M01",
+      "channel": "douyin",
+      "publish_at": "2026-11-03T18:00"
+    }
+  ],
+  "confirmations": [
+    {
+      "material_id": "M01",
+      "approved_slot": "2026-11-03T19:00",
+      "note": "运营同意改到 19:00"
+    }
+  ]
+}

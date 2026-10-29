@@ -1,0 +1,89 @@
+{
+  "request_id": "REQ-06",
+  "request_key": "REQ-06",
+  "task_status": "incomplete",
+  "publish_status": "not_published",
+  "publish_note": "本 Agent 只保存排期草稿，不调用任何发布接口",
+  "draft": {
+    "status": "not_attempted",
+    "draft_id": null,
+    "attempts": 0
+  },
+  "items": [
+    {
+      "material_id": "M03",
+      "requested": {
+        "channel": "douyin",
+        "publish_at": "2026-11-06T12:00"
+      },
+      "review_status": "pass",
+      "risk_reasons": [],
+      "rule_findings": [],
+      "suggested_channel": null,
+      "suggested_slot": null,
+      "confirmation_status": "unknown",
+      "pending_items": [],
+      "draft_status": "not_saved"
+    },
+    {
+      "material_id": "M05",
+      "requested": {
+        "channel": "douyin",
+        "publish_at": "2026-11-06T15:00"
+      },
+      "review_status": "needs_info",
+      "risk_reasons": [
+        "缺少必填字段 owner",
+        "缺少必填字段 license；可查询版权登记库补查",
+        "使用了背景音乐但缺少音乐授权编号",
+        "出镜人物肖像授权未提供"
+      ],
+      "rule_findings": [
+        "R01[missing] owner",
+        "R01[missing] license",
+        "R03[missing] music.license_id",
+        "R07[review] portrait_release"
+      ],
+      "suggested_channel": null,
+      "suggested_slot": null,
+      "confirmation_status": "unknown",
+      "pending_items": [],
+      "draft_status": "not_saved"
+    },
+    {
+      "material_id": "M08",
+      "requested": {
+        "channel": "xiaohongshu"
+      },
+      "review_status": "pass",
+      "risk_reasons": [],
+      "rule_findings": [],
+      "suggested_channel": null,
+      "suggested_slot": null,
+      "confirmation_status": "unknown",
+      "pending_items": [],
+      "draft_status": "not_saved"
+    }
+  ],
+  "summary": "",
+  "stats": {
+    "model": "deepseek-chat",
+    "model_turns": 3,
+    "tool_calls": 8,
+    "finish_rejections": 0,
+    "limits": {
+      "max_turns": 3,
+      "max_tool_calls": 40,
+      "max_finish_rejections": 2
+    },
+    "elapsed_sec": 4.83,
+    "usage": {
+      "prompt_tokens": 7971,
+      "completion_tokens": 716,
+      "total_tokens": 8687,
+      "prompt_cache_hit_tokens": 7040,
+      "prompt_cache_miss_tokens": 931
+    }
+  },
+  "incomplete_reason": "STEP_LIMIT_REACHED: 已达到模型轮次上限 3，任务未完成"
+}

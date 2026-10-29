@@ -1,0 +1,30 @@
+[
+  {
+    "draft_id": "D-763DEB3C",
+    "request_key": "REQ-02",
+    "state": "draft",
+    "revision": 1,
+    "content_hash": "98cc8585628b12d6",
+    "items": [
+      {
+        "material_id": "M01",
+        "channel": "douyin",
+        "slot": "2026-11-03T19:00",
+        "requested_channel": "douyin",
+        "requested_slot": "2026-11-03T18:00",
+        "review_result": "pass",
+        "confirmation_status": "pending",
+        "note": "原要求 2026-11-03T18:00 已被排期 S-1001（M90 品牌直播预告）占用，建议顺延至同日 19:00，待确认"
+      }
+    ],
+    "created_at": "2026-10-29T15:30:26",
+    "updated_at": "2026-10-29T15:30:26",
+    "history": [
+      {
+        "revision": 1,
+        "content_hash": "98cc8585628b12d6",
+        "at": "2026-10-29T15:30:26"
+      }
+    ]
+  }
+]

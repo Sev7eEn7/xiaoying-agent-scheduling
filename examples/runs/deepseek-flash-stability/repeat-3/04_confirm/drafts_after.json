@@ -1,0 +1,35 @@
+[
+  {
+    "draft_id": "D-763DEB3C",
+    "request_key": "REQ-02",
+    "state": "draft",
+    "revision": 2,
+    "content_hash": "ebd4893f013034de",
+    "items": [
+      {
+        "material_id": "M01",
+        "channel": "douyin",
+        "slot": "2026-11-03T19:00",
+        "requested_channel": "douyin",
+        "requested_slot": "2026-11-03T18:00",
+        "review_result": "pass",
+        "confirmation_status": "confirmed",
+        "note": "原要求 18:00 已被 S-1001（M90 品牌直播预告）占用，改用运营在 confirmations 中已批准的 19:00"
+      }
+    ],
+    "created_at": "2026-10-29T15:36:30",
+    "updated_at": "2026-10-29T15:36:51",
+    "history": [
+      {
+        "revision": 1,
+        "content_hash": "98cc8585628b12d6",
+        "at": "2026-10-29T15:36:30"
+      },
+      {
+        "revision": 2,
+        "content_hash": "ebd4893f013034de",
+        "at": "2026-10-29T15:36:51"
+      }
+    ]
+  }
+]

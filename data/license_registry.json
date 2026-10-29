@@ -1,0 +1,7 @@
+{
+  "_note": "合成版权登记库，供 lookup_license 补查。未收录的素材返回 found=false。",
+  "records": {
+    "M03": {"registry_id": "CR-5531", "type": "original", "holder": "内容组C", "expires_at": "2027-06-30"},
+    "M01": {"registry_id": "CR-5102", "type": "original", "holder": "内容组A", "expires_at": null}
+  }
+}

@@ -1,0 +1,86 @@
+{
+  "request_id": "REQ-07",
+  "request_key": "REQ-07",
+  "task_status": "needs_confirmation",
+  "publish_status": "not_published",
+  "publish_note": "本 Agent 只保存排期草稿，不调用任何发布接口",
+  "draft": {
+    "status": "created",
+    "draft_id": "D-DD1748B1",
+    "revision": 1,
+    "attempts": 1,
+    "state": "draft"
+  },
+  "items": [
+    {
+      "material_id": "M04",
+      "requested": {
+        "channel": "douyin",
+        "publish_at": "2026-11-07T20:00"
+      },
+      "review_status": "blocked",
+      "risk_reasons": [
+        "R04(block)：文案含广告法禁用极限用语“最有效/全网最/100%”",
+        "R05(review)：文案“祛痘、根治”疑似功效/医疗宣称，需法务复核",
+        "R06(review)：商业合作内容未标注“广告”"
+      ],
+      "rule_findings": [
+        "R04[block] caption",
+        "R05[review] caption",
+        "R06[review] ad_label"
+      ],
+      "suggested_channel": "douyin",
+      "suggested_slot": null,
+      "confirmation_status": "not_applicable",
+      "pending_items": [
+        "需重写文案，删除“最有效/全网最/100%/根治”等极限与医疗宣称用语",
+        "修改后需重新提交审核（含法务复核功效宣称）",
+        "商业合作需补标“广告”标识",
+        "审核通过前无可用建议时段，暂不可排期"
+      ],
+      "draft_status": "not_saved"
+    },
+    {
+      "material_id": "M06",
+      "requested": {
+        "channel": "xiaohongshu",
+        "publish_at": "2026-11-07T12:00"
+      },
+      "review_status": "review",
+      "risk_reasons": [
+        "R07(review)：出镜人物肖像授权未回传"
+      ],
+      "rule_findings": [
+        "R07[review] portrait_release"
+      ],
+      "suggested_channel": "xiaohongshu",
+      "suggested_slot": "2026-11-07T12:00",
+      "confirmation_status": "pending",
+      "pending_items": [
+        "补齐出镜人物肖像授权回传并完成人工复核（R07）",
+        "草稿已按用户要求时段 2026-11-07T12:00 占位，复核通过后方可推进"
+      ],
+      "draft_status": "saved"
+    }
+  ],
+  "summary": "本批 2 个素材：M04（抖音 11-07 20:00）审核结论为 block——文案含广告法禁用极限用语（最有效/全网最/100%），另有功效医疗宣称与未标“广告”两项需复核问题，已阻断、未纳入草稿，需改写文案并重新送审后再排期。M06（小红书 11-07 12:00）结论为 review，仅肖像授权未回传一项问题，指定时段空闲且与用户要求一致，已连同待确认说明保存为排期草稿 D-DD1748B1（修订 1，仅草稿，未发布），需补齐肖像授权并完成人工复核。M06 时段未做任何改动，无争用冲突。",
+  "stats": {
+    "model": "deepseek-flash",
+    "model_turns": 5,
+    "tool_calls": 7,
+    "finish_rejections": 0,
+    "limits": {
+      "max_turns": 15,
+      "max_tool_calls": 40,
+      "max_finish_rejections": 2
+    },
+    "elapsed_sec": 10.45,
+    "usage": {
+      "prompt_tokens": 15604,
+      "completion_tokens": 1463,
+      "total_tokens": 17067,
+      "prompt_cache_hit_tokens": 14336,
+      "prompt_cache_miss_tokens": 1268
+    }
+  }
+}

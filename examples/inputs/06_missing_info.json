@@ -1,0 +1,19 @@
+{
+  "request_id": "REQ-06",
+  "items": [
+    {
+      "material_id": "M03",
+      "channel": "douyin",
+      "publish_at": "2026-11-06T12:00"
+    },
+    {
+      "material_id": "M05",
+      "channel": "douyin",
+      "publish_at": "2026-11-06T15:00"
+    },
+    {
+      "material_id": "M08",
+      "channel": "xiaohongshu"
+    }
+  ]
+}

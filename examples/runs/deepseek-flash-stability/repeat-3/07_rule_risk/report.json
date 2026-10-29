@@ -1,0 +1,85 @@
+{
+  "request_id": "REQ-07",
+  "request_key": "REQ-07",
+  "task_status": "needs_confirmation",
+  "publish_status": "not_published",
+  "publish_note": "本 Agent 只保存排期草稿，不调用任何发布接口",
+  "draft": {
+    "status": "created",
+    "draft_id": "D-DD1748B1",
+    "revision": 1,
+    "attempts": 1,
+    "state": "draft"
+  },
+  "items": [
+    {
+      "material_id": "M04",
+      "requested": {
+        "channel": "douyin",
+        "publish_at": "2026-11-07T20:00"
+      },
+      "review_status": "blocked",
+      "risk_reasons": [
+        "R04 阻断：文案含广告法禁用极限用语（“最有效”“全网最”“100%”）",
+        "R05 复核：疑似功效/医疗宣称（“祛痘”“根治”）需法务复核",
+        "R06 复核：商业合作内容未标注“广告”"
+      ],
+      "rule_findings": [
+        "R04[block] caption",
+        "R05[review] caption",
+        "R06[review] ad_label"
+      ],
+      "suggested_channel": "douyin",
+      "suggested_slot": null,
+      "confirmation_status": "not_applicable",
+      "pending_items": [
+        "需重写文案，删除“最有效”“全网最”“100%”“根治”等极限与功效宣称",
+        "补充“广告”标识后重新提审",
+        "重新审核通过前无法给出时段"
+      ],
+      "draft_status": "not_saved"
+    },
+    {
+      "material_id": "M06",
+      "requested": {
+        "channel": "xiaohongshu",
+        "publish_at": "2026-11-07T12:00"
+      },
+      "review_status": "review",
+      "risk_reasons": [
+        "R07 需复核：出镜人物肖像授权未回传（portrait_release=false 但含真人出镜）"
+      ],
+      "rule_findings": [
+        "R07[review] portrait_release"
+      ],
+      "suggested_channel": "xiaohongshu",
+      "suggested_slot": "2026-11-07T12:00",
+      "confirmation_status": "pending",
+      "pending_items": [
+        "等待人工（法务/合规）复核肖像授权风险",
+        "补交出镜人物肖像授权书"
+      ],
+      "draft_status": "saved"
+    }
+  ],
+  "summary": "本批次 2 个素材：M04（祛痘精华，抖音）审核为 block（R04 极限用语阻断，另有功效宣称与未标“广告”两项复核项），不进入草稿，需重写文案并加广告标识后重新提审，故未给出时段。M06（双11预热海报，小红书）审核为 review，仅肖像授权未回传，请求的小红书 2026-11-07 12:00 时段查询为空闲，已按原时段写入排期草稿（draft_id D-DD1748B1，revision 1），确认状态 pending，等人工复核并补齐肖像授权。草稿仅为草稿状态，未发布、未上线。",
+  "stats": {
+    "model": "deepseek-flash",
+    "model_turns": 5,
+    "tool_calls": 7,
+    "finish_rejections": 0,
+    "limits": {
+      "max_turns": 15,
+      "max_tool_calls": 40,
+      "max_finish_rejections": 2
+    },
+    "elapsed_sec": 12.73,
+    "usage": {
+      "prompt_tokens": 15846,
+      "completion_tokens": 1771,
+      "total_tokens": 17617,
+      "prompt_cache_hit_tokens": 14592,
+      "prompt_cache_miss_tokens": 1254
+    }
+  }
+}

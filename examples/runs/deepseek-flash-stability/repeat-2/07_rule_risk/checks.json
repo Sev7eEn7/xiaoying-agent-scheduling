@@ -1,0 +1,62 @@
+[
+  {
+    "check": "task_status",
+    "expected": "needs_confirmation",
+    "actual": "needs_confirmation",
+    "pass": true
+  },
+  {
+    "check": "M04.review_status",
+    "expected": "blocked",
+    "actual": "blocked",
+    "pass": true
+  },
+  {
+    "check": "M04.draft_status",
+    "expected": "not_saved",
+    "actual": "not_saved",
+    "pass": true
+  },
+  {
+    "check": "M06.review_status",
+    "expected": "review",
+    "actual": "review",
+    "pass": true
+  },
+  {
+    "check": "M06.confirmation_status",
+    "expected": "pending",
+    "actual": "pending",
+    "pass": true
+  },
+  {
+    "check": "M06.draft_status",
+    "expected": "saved",
+    "actual": "saved",
+    "pass": true
+  },
+  {
+    "check": "M06.pending_items 非空",
+    "expected": true,
+    "actual": true,
+    "pass": true
+  },
+  {
+    "check": "M04 不在任何草稿中",
+    "expected": true,
+    "actual": true,
+    "pass": true
+  },
+  {
+    "check": "未声称已发布",
+    "expected": true,
+    "actual": true,
+    "pass": true
+  },
+  {
+    "check": "未超过步数上限",
+    "expected": true,
+    "actual": true,
+    "pass": true
+  }
+]

@@ -1,0 +1,10 @@
+{
+  "_note": "已确认的发布排期（合成）。同一渠道同一整点只能有一条。",
+  "slots": [
+    {"schedule_id": "S-1000", "channel": "douyin", "slot": "2026-11-03T17:00", "material_id": "M89", "title": "品牌日短片"},
+    {"schedule_id": "S-1001", "channel": "douyin", "slot": "2026-11-03T18:00", "material_id": "M90", "title": "品牌直播预告"},
+    {"schedule_id": "S-1002", "channel": "douyin", "slot": "2026-11-03T20:00", "material_id": "M91", "title": "达人合作视频"},
+    {"schedule_id": "S-1003", "channel": "xiaohongshu", "slot": "2026-11-04T18:00", "material_id": "M92", "title": "新品图文"},
+    {"schedule_id": "S-1004", "channel": "douyin", "slot": "2026-11-05T19:00", "material_id": "M93", "title": "周四固定栏目"}
+  ]
+}
